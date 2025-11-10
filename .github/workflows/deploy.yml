@@ -1,0 +1,44 @@
+name: Deploy Vite + Tailwind to GitHub Pages
+
+on:
+  push:
+    branches: [main]   # Se ejecuta automáticamente cuando haces push a "main"
+  workflow_dispatch:    # También se puede ejecutar manualmente desde GitHub
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # GitHub usa una máquina Linux virtual
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4   # Descarga tu código del repo
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20          # Instala Node.js versión 20
+
+      - name: Install dependencies
+        run: npm install            # Ejecuta "npm install"
+
+      - name: Build project
+        run: npm run build          # Ejecuta "npm run build" → genera dist/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist                # Sube el contenido de "dist" a GitHub Pages
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
