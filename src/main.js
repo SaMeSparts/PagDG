@@ -24,7 +24,7 @@ const db = getFirestore(app);
 
 // 5. CÓDIGO PRINCIPAL
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("DOM Cargado. App Iniciada. (Versión Robusta)");
+  console.log("DOM Cargado. App Iniciada. (Versión Robusta v4)"); // Añadí v4 para que veas el cambio
 
   // --- Nuestra propia variable para guardar el estado del usuario ---
   let currentUser = null;
@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetPage) targetPage.classList.remove('hidden');
   }
 
+  // Esta función ahora es llamada por 'onAuthStateChanged' y por la navegación
   function updateAjustesUI(user) {
     if (user) {
       console.log("Actualizando UI de Ajustes: CONECTADO");
