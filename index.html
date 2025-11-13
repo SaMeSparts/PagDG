@@ -16,21 +16,20 @@
       </nav>
     </div>
     
-      <!-- PÁGINA 1: INFORMACIÓN -->
+      <!-- PÁGINA 1: INFORMACIÓN (Sin cambios) -->
     <div id="page-informacion" class="flex flex-col items-center hidden w-full page-content"> 
       <section class="flex items-center text-center">
         <h1 class="mb-10 font-sans text-3xl font-bold text-green-800 uppercase font-stretch-extra-expanded text-shadow-lg font-merriweather">
           Información del Proyecto EFI-VOLT
         </h1>
       </section>
-      <!-- La caja blanca de esta página -->
       <main class="flex items-center justify-center px-2 mx-10 bg-white border-b-4 border-r-4 border-green-600 rounded-lg hover:shadow-lg">
         <section class="flex flex-col max-w-lg px-4 overflow-auto text-black max-h-80 md:max-w-xl md:max-h-96 ">
           <section class="p-2">
             <img src="./foto1.jpg" alt="Descripción foto 1" class="h-auto mx-auto mb-2 rounded-lg shadow-md w-60 md:float-right md:ml-4" />
             <h1 class="text-xl font-stack">DESCRIPCIÓN DEL PROYECTO</h1>
             <p class="text-xs text-justify font-roboto">
-                El usuario principal es cualquier persona interesada en conocer, monitorear y gestionar su consumo eléctrico de manera práctica; enfocada principalmente en  viviendas, oficinas o negocios con intereses en eficiencia energética y que busquen formas de reducir gastos. También es útil para técnicos, ingenieros y estudiantes que deseen observar el comportamiento eléctrico. EFI-VOLT.  El sistema está pensado para ser intuitivo, permitiendo que cualquier usuario, incluso sin experiencia técnica, pueda comprender las mediciones sin mayores complicaciones y tomar decisiones informadas, respaldadas por el uso de la página de gestión energética. Gracias al uso de sensores IoT, la información recolectada es confiable, precisa y se actualiza constantemente, sin ser tan costoso, permitiendo un control más dinámico (facilitado) y moderno del consumo energético.
+                El usuario principal es cualquier persona interesada en conocer, monitorear y gestionar su consumo eléctrico de manera práctica; enfocada principalmente en 	viviendas, oficinas o negocios con intereses en eficiencia energética y que busquen formas de reducir gastos. También es útil para técnicos, ingenieros y estudiantes que deseen observar el comportamiento eléctrico. EFI-VOLT. 	El sistema está pensado para ser intuitivo, permitiendo que cualquier usuario, incluso sin experiencia técnica, pueda comprender las mediciones sin mayores complicaciones y tomar decisiones informadas, respaldadas por el uso de la página de gestión energética. Gracias al uso de sensores IoT, la información recolectada es confiable, precisa y se actualiza constantemente, sin ser tan costoso, permitiendo un control más dinámico (facilitado) y moderno del consumo energético.
             </p>
           </section>
           <div class="clear-both pt-4 ">
@@ -44,98 +43,103 @@
             <img src="./foto3.jpg" alt="Descripción foto 3" class="h-auto mx-auto mb-2 rounded-lg shadow-md w-60 md:float-right md:ml-4" />
             <h2 class="mt-4 text-lg font-stack">¿Qué información necesita ver de forma inmediata?</h2>
             <p class="mt-2 text-xs leading-relaxed text-justify font-roboto">
-              Con el uso de ambos, sensor de corriente y voltaje,  el usuario podría acceder rápidamente a los indicadores más relevantes, como el consumo actual (kW), el consumo acumulado del día (kWh) y el costo estimado generado hasta el momento. Esta información debe mostrarse de forma visual   mediante la interfaz gráfica y la página . Al visualizar las variaciones y tendencias de manera gráfica, el usuario puede detectar patrones, identificar momentos de mayor demanda y comprender mejor su gasto  energético. Además es fundamental que tenga acceso inmediato a los controles de los dispositivos conectados para actuar con rapidez, ya sea apagando un aparato o modificando su configuración de consumo energético; este tipo de monitoreo y control, basado en sensores IoT, representa una ventaja significativa frente a los métodos tradicionales, ya que brinda información precisa, actualizada y accesible desde cualquier lugar, impulsando un uso más eficiente y responsable de la energía, nuevamente impulsado por la propuesta de EFI-VOLT , de tener al alcance la gestión energética de manera sencilla.
+              Con el uso de ambos, sensor de corriente y voltaje, 	el usuario podría acceder rápidamente a los indicadores más relevantes, como el consumo actual (kW), el consumo acumulado del día (kWh) y el costo estimado generado hasta el momento. Esta información debe mostrarse de forma visual 	 mediante la interfaz gráfica y la página . Al visualizar las variaciones y tendencias de manera gráfica, el usuario puede detectar patrones, identificar momentos de mayor demanda y comprender mejor su gasto 	energético. Además es fundamental que tenga acceso inmediato a los controles de los dispositivos conectados para actuar con rapidez, ya sea apagando un aparato o modificando su configuración de consumo energético; este tipo de monitoreo y control, basado en sensores IoT, representa una ventaja significativa frente a los métodos tradicionales, ya que brinda información precisa, actualizada y accesible desde cualquier lugar, impulsando un uso más eficiente y responsable de la energía, nuevamente impulsado por la propuesta de EFI-VOLT , de tener al alcance la gestión energética de manera sencilla.
             </p>
           </div>
         </section>
       </main>
       <button class="z-10 px-4 py-2 mt-6 mb-4 font-bold text-white uppercase bg-green-600 border-2 border-green-800 rounded-lg hover:bg-green-700" onclick="window.location.href='https://maze-binary-92200120.figma.site/'">Prototipo de interfaz</button>
-    </div>  
+    </div> 	
 
-      <!-- PÁGINA 2: DISPOSITIVOS -->
-    <div id="page-dispositivos" class="flex flex-col items-center w-full pt-20 page-content ">
+      <!-- PÁGINA 2: DISPOSITIVOS (Con IDs añadidos) -->
+    <div id="page-dispositivos" class="flex flex-col items-center hidden w-full pt-20 page-content">
       
-      <!-- Título de la página -->
       <section class="flex items-center text-center">
         <h1 class="mb-10 font-sans text-3xl font-bold text-green-800 uppercase font-merriweather">
           Dispositivos Conectados
         </h1>
       </section>
 
-      <!-- La caja blanca de esta página -->
-      <main class="flex items-center justify-center px-2 mx-10 bg-white border-b-4 border-r-4 border-green-600 rounded-lg hover:shadow-lg">
-        <!-- Contenedor de scroll MODIFICADO: Misma altura que página 1 -->
-        <section class="flex flex-col w-full max-w-lg px-4 overflow-auto text-black max-h-80 md:max-w-xl md:max-h-96 ">
+      <main class="flex flex-col p-6 mx-10 bg-white border-b-4 border-r-4 border-green-600 rounded-lg hover:shadow-lg w-full max-w-6xl h-[70vh] overflow-auto">
+        
+        <h1 class="text-xl font-stack">Mis Dispositivos</h1>
+        <p class="mt-2 mb-4 text-xs text-justify font-roboto">
+          Añade y gestiona tus dispositivos EFI-VOLT.
+        </p>
+
+        <div id="devices-grid" class="grid grid-cols-2 gap-4 md:grid-cols-4">
           
-          <!-- CONTENIDO NUEVO: Interfaz tipo "Home" -->
-          <div class="p-2">
-            <h1 class="text-xl font-stack">Mis Dispositivos</h1>
-            <p class="mt-2 mb-4 text-xs text-justify font-roboto">
-              Añade y gestiona tus dispositivos EFI-VOLT.
-            </p>
+          <button id="btn-add-device" class="flex flex-col items-center justify-center p-4 text-green-700 transition-colors border-2 border-green-400 border-dashed rounded-lg bg-green-50 aspect-square hover:bg-green-100">
+              <img src="./mas.png" class="fill-green-400">
+          
+            <span class="mt-2 text-sm font-semibold font-roboto">Añadir</span>
+          </button>
 
-            <!-- 
-              Rejilla (Grid) para los dispositivos.
-              - 2 columnas en móvil
-              - 3 columnas en pantallas medianas (md)
-            -->
-            <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
-              
-              <!-- 
-                Tarjeta para "Añadir Dispositivo"
-                Esta es la tarjeta principal por ahora.
-              -->
-              <button class="flex flex-col items-center justify-center p-4 text-green-700 transition-colors border-2 border-green-400 border-dashed rounded-lg bg-green-50 aspect-square hover:bg-green-100">
-                <!-- Icono SVG de un '+' -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                <span class="mt-2 text-sm font-semibold font-roboto">Añadir</span>
-              </button>
-
-              <!-- 
-                EJEMPLO DE TARJETA DE DISPOSITIVO (Comentado)
-                Cuando tengas tu base de datos, puedes usar esta estructura
-                para mostrar cada dispositivo.
-              -->
-              <!--
-              <button class="flex flex-col items-center justify-center p-4 text-gray-800 transition-colors bg-white border border-gray-200 rounded-lg shadow-md aspect-square hover:bg-gray-50">
-                
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m12.728 0l-.707.707M12 21v-1m-6.657-3.343l.707-.707m12.728 0l.707.707" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a6 6 0 100-12 6 6 0 000 12z" />
-                </svg>
-                <span class="mt-2 text-sm font-semibold font-roboto">Luz Sala</span>
-              </button>
-              -->
-
-            </div>
+          <!-- 
+            CAMBIO: 
+            El ejemplo comentado ahora es un 'div' para poder 
+            incluir un botón de eliminar dentro.
+          -->
+          <!--
+          <div data-doc-id="ID_UNICO_DE_FIREBASE" class="relative flex flex-col items-center justify-center p-4 text-gray-800 bg-white border border-gray-200 rounded-lg shadow-md device-card aspect-square">
+            <button class="absolute p-1 text-gray-400 transition-colors rounded-full btn-delete-device top-2 right-2 hover:text-red-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m12.728 0l-.707.707M12 21v-1m-6.657-3.343l.707-.707m12.728 0l.707.707" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a6 6 0 100-12 6 6 0 000 12z" />
+            </svg>
+            <span class="mt-2 text-sm font-semibold font-roboto">Luz Sala</span>
           </div>
-          <!-- FIN DE CONTENIDO NUEVO -->
+          -->
 
-        </section>
+        </div>
+        
       </main>
-      <!-- Aquí podrías añadir otros botones SÓLO para esta página -->
+      
     </div>
 
-        
-        <!-- PÁGINA 3: AJUSTES (Oculta por defecto) -->
-    <div id="page-ajustes" class="flex flex-col items-center hidden w-full pt-20 page-content">
       
-      <!-- La caja blanca de esta página -->
+      <!-- PÁGINA 3: AJUSTES (Sin cambios) -->
+    <div id="page-ajustes" class="flex flex-col items-center w-full pt-20 page-content">
+      
+      <section class="flex items-center text-center">
+        <h1 class="mb-10 font-sans text-3xl font-bold text-green-800 uppercase font-merriweather">
+          Ajustes de la Cuenta
+        </h1>
+      </section>
+
       <main class="flex items-center justify-center px-2 mx-10 bg-white border-b-4 border-r-4 border-green-600 rounded-lg hover:shadow-lg">
-        <section class="flex flex-col max-w-lg px-4 overflow-auto text-black max-h-52 md:max-w-xl md:max-h-52 ">
-          <section class="p-2">
-            <h1 class="text-xl font-stack">AJUSTES DE CUENTA</h1>
-            <p class="mt-4 text-xs text-justify font-roboto">
-              Aquí puedes poner el contenido para la página de 'Ajustes'.
-              Por ejemplo, cambiar contraseña, configurar notificaciones, etc.
+        
+        <section class="flex flex-col w-full max-w-lg px-4 py-6 overflow-auto text-black max-h-96 md:max-w-xl">
+          
+          <section id="login-section" class="">
+            <h1 class="text-xl font-stack">Iniciar Sesión</h1>
+            <p class="mt-4 text-sm font-roboto">
+              Conecta tu cuenta para guardar y sincronizar tus dispositivos.
             </p>
-            <!-- Puedes añadir formularios, botones, etc. aquí -->
+            <button id="btn-login-google" class="flex items-center justify-center px-4 py-2 mt-6 font-bold text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50">
+              <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google logo" class="w-10 h-5 mr-2">
+              Iniciar sesión con Google
+            </button>
           </section>
+
+          <section id="user-info-section" class="hidden">
+            <h1 class="text-xl font-stack">Perfil de Usuario</h1>
+            <p class="mt-4 text-sm font-roboto">
+              Conectado como: <span id="user-email-display" class="font-bold"></span>
+            </p>
+            <button id="btn-logout" class="px-4 py-2 mt-6 font-bold text-white bg-red-600 rounded-lg hover:bg-red-700">
+              Cerrar Sesión
+            </button>
+          </section>
+
         </section>
+        
       </main>
-      <!-- Aquí podrías añadir otros botones SÓLO para esta página -->
+      
     </div>
 
 
@@ -154,7 +158,6 @@
           <a href="#" class="p-2 text-gray-700 rounded nav-link hover:bg-gray-200" data-target="page-dispositivos">Dispositivos</a>
           <a href="#" class="p-2 text-gray-700 rounded nav-link hover:bg-gray-200" data-target="page-informacion">Información</a>
           <a href="#" class="p-2 text-gray-700 rounded nav-link hover:bg-gray-200" data-target="page-ajustes">Ajustes</a>
-          <a href="#" class="p-2 text-gray-700 rounded hover:bg-gray-200">Cerrar Sesión</a> <!-- Sin 'data-target', acción diferente -->
         </nav>
     </div>
 
