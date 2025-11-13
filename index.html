@@ -3,39 +3,98 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pagdg</title>
+    <title>EFI-VOLT</title>
   </head>
 
   <body class="relative flex flex-col items-center justify-center min-h-screen bg-no-repeat bg-gradient-to-b from-white to-green-500">
-    <img class="absolute top-0 mt-2 rounded-md shadow-xl w-96" src="./logo.jpg" />
-
+    <div>
+      <nav class="absolute top-0 left-0 flex items-center justify-center w-full h-16 p-4 bg-gray-100 border-b-4 border-green-600 shadow-md">
+        <img class="absolute left-0 h-10 mt-2 rounded-md w-44 md:w-36" src="./logo.jpg" alt="Logo EFI-VOLT" />
+        <button id="open-sidebar-btn" class="absolute right-3 size-6">
+          <img src="./Boton3lineas.png" alt="Abrir menú">
+        </button>
+      </nav>
+    </div>
+    
+    
     <main class="flex items-center justify-center px-2 mx-10 bg-white border-b-4 border-r-4 border-green-600 rounded-lg hover:shadow-lg">
-      <section class="flex flex-col max-w-lg px-4 overflow-auto text-black max-h-52 md:max-w-xl md:max-h-52 ">
+
+      <!-- PÁGINA 1: INFORMACIÓN (Tu contenido original) -->
+      <!-- Le añadimos un id y la clase 'page-content' -->
+      <section id="page-informacion" class="flex flex-col max-w-lg px-4 overflow-auto text-black page-content max-h-52 md:max-w-xl md:max-h-52 ">
         <section class="p-2">
-          <img src="./foto1.jpg" class="float-none h-auto mb-2 ml-4 rounded-lg shadow-md md:float-right w-60" />
+          <img src="./foto1.jpg" alt="Descripción foto 1" class="float-none h-auto mb-2 ml-4 rounded-lg shadow-md md:float-right w-60" />
           <h1 class="text-xl font-stack">DESCRIPCIÓN DEL PROYECTO</h1>
           <p class="text-xs text-justify font-roboto">
-            El usuario principal es cualquier persona interesada en conocer, monitorear y gestionar su consumo eléctrico de manera práctica; enfocada principalmente en  viviendas, oficinas o negocios con intereses en eficiencia energética y que busquen formas de reducir gastos. También es útil para técnicos, ingenieros y estudiantes que deseen observar el comportamiento eléctrico. EFI-VOLT.  El sistema está pensado para ser intuitivo, permitiendo que cualquier usuario, incluso sin experiencia técnica, pueda comprender las mediciones sin mayores complicaciones y tomar decisiones informadas, respaldadas por el uso de la página de gestión energética. Gracias al uso de sensores IoT, la información recolectada es confiable, precisa y se actualiza constantemente, sin ser tan costoso, permitiendo un control más dinámico (facilitado) y moderno del consumo energético.
+            El usuario principal es cualquier persona interesada en conocer, monitorear y gestionar su consumo eléctrico de manera práctica; enfocada principalmente en  viviendas, oficinas o negocios con intereses en eficiencia energética y que busquen formas de reducir gastos. También es útil para técnicos, ingenieros y estudiantes que deseen observar el comportamiento eléctrico. EFI-VOLT.  El sistema está pensado para ser intuitivo, permitiendo que cualquier usuario, incluso sin experiencia técnica, pueda comprender las mediciones sin mayores complicaciones y tomar decisiones informadas, respaldadas por el uso de la página de gestión energética. Gracias al uso de sensores IoT, la información recolectada es confiable, precisa y se actualiza constantemente, sin ser tan costoso, permitiendo un control más dinámico (facilitado) y moderno del consumo energético.
           </p>
+        </section>
 
         <div class="clear-both pt-4 ">
-          <img src="./foto2.jpg" class="float-none h-auto mt-4 mb-2 mr-4 rounded-lg shadow-md md:float-left w-60" />
+          <img src="./foto2.jpg" alt="Descripción foto 2" class="float-none h-auto mt-4 mb-2 mr-4 rounded-lg shadow-md md:float-left w-60" />
           <h2 class="mt-4 text-lg font-stack">¿En qué situaciones utilizará la interfaz?</h2>
           <p class="mt-2 text-xs leading-relaxed text-justify font-roboto">
             La interfaz puede ser utilizada en diferentes contextos, tanto en el hogar como en entornos laborales. Por ejemplo, el usuario puede acceder a ella para revisar el consumo durante el día, detectar picos de energía inusuales o identificar si algún aparato está consumiendo más electricidad de lo esperado por medio de la colecta de los sistemas IOT, así como en oficinas o pequeños negocios, puede ser utilizada para supervisar horarios de uso de maquinaria, iluminación o equipos de cómputo, ajustando su funcionamiento según la demanda. También resulta útil al final de la jornada o la semana para evaluar los hábitos de consumo y planear algunas estrategias de ahorro energético. En todos estos casos, esta interfaz ofrece información inmediata proveniente de sensores, lo que garantiza una observación en tiempo real y una respuesta rápida ante cualquier cambio en el sistema eléctrico, algo fundamental para mantener la eficiencia y evitar gastos innecesarios de manera general.
           </p>
         </div>
         <div class="clear-both pt-4 ">
-          <img src="./foto3.jpg" class="float-none h-auto mb-2 ml-4 rounded-lg shadow-md md:float-right w-60" />
+          <img src="./foto3.jpg" alt="Descripción foto 3" class="float-none h-auto mb-2 ml-4 rounded-lg shadow-md md:float-right w-60" />
           <h2 class="mt-4 text-lg font-stack">¿Qué información necesita ver de forma inmediata?</h2>
           <p class="mt-2 text-xs leading-relaxed text-justify font-roboto">
-            Con el uso de ambos, sensor de corriente y voltaje,  el usuario podría acceder rápidamente a los indicadores más relevantes, como el consumo actual (kW), el consumo acumulado del día (kWh) y el costo estimado generado hasta el momento. Esta información debe mostrarse de forma visual   mediante la interfaz gráfica y la página . Al visualizar las variaciones y tendencias de manera gráfica, el usuario puede detectar patrones, identificar momentos de mayor demanda y comprender mejor su gasto  energético. Además es fundamental que tenga acceso inmediato a los controles de los dispositivos conectados para actuar con rapidez, ya sea apagando un aparato o modificando su configuración de consumo energético; este tipo de monitoreo y control, basado en sensores IoT, representa una ventaja significativa frente a los métodos tradicionales, ya que brinda información precisa, actualizada y accesible desde cualquier lugar, impulsando un uso más eficiente y responsable de la energía, nuevamente impulsado por la propuesta de EFI-VOLT , de tener al alcance la gestión energética de manera sencilla.
+            Con el uso de ambos, sensor de corriente y voltaje,  el usuario podría acceder rápidamente a los indicadores más relevantes, como el consumo actual (kW), el consumo acumulado del día (kWh) y el costo estimado generado hasta el momento. Esta información debe mostrarse de forma visual   mediante la interfaz gráfica y la página . Al visualizar las variaciones y tendencias de manera gráfica, el usuario puede detectar patrones, identificar momentos de mayor demanda y comprender mejor su gasto  energético. Además es fundamental que tenga acceso inmediato a los controles de los dispositivos conectados para actuar con rapidez, ya sea apagando un aparato o modificando su configuración de consumo energético; este tipo de monitoreo y control, basado en sensores IoT, representa una ventaja significativa frente a los métodos tradicionales, ya que brinda información precisa, actualizada y accesible desde cualquier lugar, impulsando un uso más eficiente y responsable de la energía, nuevamente impulsado por la propuesta de EFI-VOLT , de tener al alcance la gestión energética de manera sencilla.
           </p>
         </div>
+
+        <button class="z-10 px-4 py-2 mt-6 mb-4 font-bold text-white bg-green-600 border-2 border-green-800 rounded-lg hover:bg-green-700" onclick="window.location.href='https://maze-binary-92200120.figma.site/'">Prototipo de interfaz</button>
+      </section>
+
+      <!-- PÁGINA 2-->
+
+      <section id="page-dispositivos" class="flex flex-col hidden max-w-lg px-4 overflow-auto text-black page-content max-h-52 md:max-w-xl md:max-h-52">
+        <section class="p-2">
+          <h1 class="text-xl font-stack">DISPOSITIVOS CONECTADOS</h1>
+          <p class="mt-4 text-xs text-justify font-roboto">
+            Aquí puedes poner el contenido para la página de 'Dispositivos'.
+            Por ejemplo, una lista de interruptores, medidores, etc.
+          </p>
+          <!-- Puedes añadir imágenes, listas, etc. aquí -->
         </section>
       </section>
+      
+      <!-- PÁGINA 3-->
+
+      <section id="page-ajustes" class="flex flex-col hidden max-w-lg px-4 overflow-auto text-black page-content max-h-52 md:max-w-xl md:max-h-52">
+        <section class="p-2">
+          <h1 class="text-xl font-stack">AJUSTES DE CUENTA</h1>
+          <p class="mt-4 text-xs text-justify font-roboto">
+            Aquí puedes poner el contenido para la página de 'Ajustes'.
+            Por ejemplo, cambiar contraseña, configurar notificaciones, etc.
+          </p>
+          <!-- Puedes añadir formularios, botones, etc. aquí -->
+        </section>
+      </section>
+
     </main>
-    <button class="z-10 px-4 py-2 mt-6 font-bold text-white bg-green-600 border-2 border-green-800 rounded-lg hover:bg-green-700" onclick="window.location.href='https://maze-binary-92200120.figma.site/'">Prototipo de interfaz</button>
+
+
+
+    <div id="overlay" class="fixed inset-0 z-40 hidden bg-black bg-opacity-60"></div>
+
+    <div id="sidebar" 
+         class="fixed top-0 right-0 z-50 w-64 h-full p-5 transition-transform duration-300 ease-in-out transform translate-x-full bg-gray-100 shadow-lg rounded-tl-md rounded-bl-md">
+        
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold text-green-500">Menú</h2>
+          <button id="close-sidebar-btn" class="text-3xl text-gray-600 hover:text-gray-900">&times;</button>
+        </div>
+        
+        <nav class="flex flex-col space-y-2">
+          <a href="#" class="p-2 text-gray-700 rounded nav-link hover:bg-gray-200" data-target="page-dispositivos">Dispositivos</a>
+          <a href="#" class="p-2 text-gray-700 rounded nav-link hover:bg-gray-200" data-target="page-informacion">Información</a>
+          <a href="#" class="p-2 text-gray-700 rounded nav-link hover:bg-gray-200" data-target="page-ajustes">Ajustes</a>
+          <a href="#" class="p-2 text-gray-700 rounded hover:bg-gray-200">Cerrar Sesión</a> <!-- Sin 'data-target', acción diferente -->
+        </nav>
+    </div>
 
     <script type="module" src="./src/main.js"></script>
   </body>
