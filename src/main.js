@@ -3,7 +3,6 @@ import './style.css';
 
 // 2. IMPORTAR FUNCIONES DE FIREBASE
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-// CAMBIO: Añadir 'signInWithRedirect'
 import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -55,6 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- LÓGICA DE CAMBIO DE PÁGINA ---
   const navLinks = document.querySelectorAll('.nav-link');
   const contentSections = document.querySelectorAll('.page-content');
+  
+  // --- Referencias a la UI de Ajustes (las movemos aquí para usarlas en más lugares) ---
+  const loginSection = document.getElementById('login-section');
+  const userInfoSection = document.getElementById('user-info-section');
+  const userEmailDisplay = document.getElementById('user-email-display');
 
   function showPage(targetId) {
     contentSections.forEach(section => section.classList.add('hidden'));
@@ -62,11 +66,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (targetPage) targetPage.classList.remove('hidden');
   }
 
+  // CAMBIO: Nueva función centralizada para actualizar la página de Ajustes
+  function updateAjustesUI(user) {
+    if (user) {
+      // Usuario HA INICIADO SESIÓN
+      if (loginSection) loginSection.classList.add('hidden');
+      if (userInfoSection) userInfoSection.classList.remove('hidden');
+      if (userEmailDisplay) userEmailDisplay.textContent = user.email;
+    } else {
+      // Usuario NO ha iniciado sesión
+      if (loginSection) loginSection.classList.remove('hidden');
+      if (userInfoSection) userInfoSection.classList.add('hidden');
+    }
+  }
+
+  // CAMBIO: Modificamos el 'listener' de navegación
   navLinks.forEach(link => {
     link.addEventListener('click', (event) => {
       event.preventDefault(); 
       const targetId = event.currentTarget.dataset.target;
-      if (targetId) showPage(targetId);
+      if (targetId) {
+        showPage(targetId);
+        
+        // ¡CAMBIO CLAVE!
+        // Si la página a la que vamos es "Ajustes",
+        // llamamos manualmente a nuestra función para actualizar la UI
+        // con el estado actual del usuario.
+        if (targetId === 'page-ajustes') {
+          updateAjustesUI(auth.currentUser);
+        }
+      }
       closeSidebar();
     });
   });
@@ -77,25 +106,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // 6. LÓGICA DE AUTENTICACIÓN Y BASE DE DATOS
   
   // --- Sección de Autenticación (Página 3: Ajustes) ---
-  const loginSection = document.getElementById('login-section');
-  const userInfoSection = document.getElementById('user-info-section');
   const btnLogin = document.getElementById('btn-login-google');
   const btnLogout = document.getElementById('btn-logout');
-  const userEmailDisplay = document.getElementById('user-email-display');
 
-  // Este 'onAuthStateChanged' también maneja la respuesta
-  // de 'signInWithRedirect' cuando la página vuelve a cargar.
+  // CAMBIO: 'onAuthStateChanged' ahora es más simple.
+  // Solo se preocupa por cargar datos y llamar a la función de UI.
   onAuthStateChanged(auth, (user) => {
+    // 1. Actualizar la UI de Ajustes (por si acaso el usuario está en esa página)
+    updateAjustesUI(user);
+
+    // 2. Cargar/limpiar datos de dispositivos
     if (user) {
       console.log("Usuario conectado:", user.email);
-      if (loginSection) loginSection.classList.add('hidden');
-      if (userInfoSection) userInfoSection.classList.remove('hidden');
-      if (userEmailDisplay) userEmailDisplay.textContent = user.email;
       loadUserDevices(user.uid); 
     } else {
       console.log("Usuario desconectado.");
-      if (loginSection) loginSection.classList.remove('hidden');
-      if (userInfoSection) userInfoSection.classList.add('hidden');
       clearDevicesDisplay(); 
     }
   });
@@ -103,8 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnLogin) {
     btnLogin.addEventListener('click', () => {
       const provider = new GoogleAuthProvider();
-      // CAMBIO: Usar 'signInWithRedirect' en lugar de 'signInWithPopup'
-      // Esto es mucho más confiable en navegadores móviles.
       signInWithRedirect(auth, provider)
         .catch((error) => console.error("Error en login:", error));
     });
@@ -126,6 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const user = auth.currentUser;
       if (!user) {
         console.warn("Usuario no conectado. Redirigiendo a Ajustes.");
+        updateAjustesUI(null); // Asegurarse de que la página de Ajustes muestre el login
         showPage('page-ajustes'); 
         return;
       }
@@ -162,12 +186,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const docId = card ? card.dataset.docId : null;
       
       if (docId) {
-        console.log("Eliminando dispositivo:", docId);
-        try {
-          await deleteDoc(doc(db, "devices", docId));
-          console.log("Dispositivo eliminado con éxito");
-        } catch (e) {
-          console.error("Error al eliminar el documento: ", e);
+        // CAMBIO: Añadir confirmación antes de borrar
+        // 'confirm()' puede no funcionar bien en todos los navegadores
+        // pero es un inicio. Si falla, necesitaríamos un modal HTML.
+        const wantsToDelete = confirm("¿Estás seguro de que quieres eliminar este dispositivo?");
+        if (wantsToDelete) {
+          console.log("Eliminando dispositivo:", docId);
+          try {
+            await deleteDoc(doc(db, "devices", docId));
+            console.log("Dispositivo eliminado con éxito");
+          } catch (e) {
+            console.error("Error al eliminar el documento: ", e);
+          }
         }
       }
     });
