@@ -3,8 +3,8 @@ import './style.css';
 
 // 2. IMPORTAR FUNCIONES DE FIREBASE
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-// CAMBIO: Añadir 'doc' y 'deleteDoc'
+// CAMBIO: Añadir 'signInWithRedirect'
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // 3. CONFIGURACIÓN DE FIREBASE
@@ -83,6 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnLogout = document.getElementById('btn-logout');
   const userEmailDisplay = document.getElementById('user-email-display');
 
+  // Este 'onAuthStateChanged' también maneja la respuesta
+  // de 'signInWithRedirect' cuando la página vuelve a cargar.
   onAuthStateChanged(auth, (user) => {
     if (user) {
       console.log("Usuario conectado:", user.email);
@@ -101,7 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnLogin) {
     btnLogin.addEventListener('click', () => {
       const provider = new GoogleAuthProvider();
-      signInWithPopup(auth, provider)
+      // CAMBIO: Usar 'signInWithRedirect' en lugar de 'signInWithPopup'
+      // Esto es mucho más confiable en navegadores móviles.
+      signInWithRedirect(auth, provider)
         .catch((error) => console.error("Error en login:", error));
     });
   }
@@ -117,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnAddDevice = document.getElementById('btn-add-device'); 
   const devicesGrid = document.getElementById('devices-grid');
 
-  // Evento para AÑADIR DISPOSITIVO
   if (btnAddDevice) {
     btnAddDevice.addEventListener('click', async () => {
       const user = auth.currentUser;
@@ -146,38 +149,29 @@ document.addEventListener('DOMContentLoaded', () => {
     console.warn("El botón 'btn-add-device' no se encontró. Revisa tu index.html.");
   }
   
-  // --- INICIO DE NUEVA LÓGICA DE BORRADO ---
-  
-  // Evento para ELIMINAR DISPOSITIVO (usando delegación de eventos)
+  // --- LÓGICA DE BORRADO ---
   if (devicesGrid) {
     devicesGrid.addEventListener('click', async (event) => {
-      // 1. Comprobar si se hizo clic en un botón de eliminar
       const deleteButton = event.target.closest('.btn-delete-device');
       
       if (!deleteButton) {
-        return; // No se hizo clic en un botón de eliminar
+        return;
       }
       
-      // 2. Encontrar la tarjeta padre para obtener el ID del documento
       const card = deleteButton.closest('.device-card');
       const docId = card ? card.dataset.docId : null;
       
       if (docId) {
-        // 3. Llamar a Firestore para eliminar el documento
         console.log("Eliminando dispositivo:", docId);
         try {
           await deleteDoc(doc(db, "devices", docId));
           console.log("Dispositivo eliminado con éxito");
-          // No es necesario remover el HTML, onSnapshot se encargará
-          // de actualizar la UI automáticamente.
         } catch (e) {
           console.error("Error al eliminar el documento: ", e);
         }
       }
     });
   }
-  // --- FIN DE NUEVA LÓGICA DE BORRADO ---
-
 
   // Función para CARGAR dispositivos
   function loadUserDevices(userId) {
@@ -191,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
       clearDevicesDisplay(); 
       querySnapshot.forEach((doc) => {
         const device = doc.data();
-        // CAMBIO: Pasar el ID del documento a la función de crear tarjeta
         createDeviceCard(device.name, doc.id); 
       });
     }, (error) => {
@@ -199,24 +192,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // CAMBIO: La función ahora acepta docId y crea un <div> con botón de borrado
+  // Función para DIBUJAR tarjeta de dispositivo
   function createDeviceCard(name, docId) {
     if (!devicesGrid || !btnAddDevice) return;
     
-    // Ahora creamos un <div> en lugar de un <button>
-    // Añadimos 'data-doc-id' para guardar el ID de Firebase
-    // Añadimos un botón de borrado con la clase 'btn-delete-device'
     const cardHTML = `
       <div data-doc-id="${docId}" class="device-card relative flex flex-col items-center justify-center p-4 text-gray-800 bg-white border border-gray-200 rounded-lg shadow-md aspect-square transition-colors">
         
-        <!-- Botón de Eliminar -->
         <button class="btn-delete-device absolute top-2 right-2 p-1 text-gray-400 hover:text-red-600 rounded-full transition-colors z-10">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
         
-        <!-- Contenido de la tarjeta (el ícono) -->
         <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m12.728 0l-.707.707M12 21v-1m-6.657-3.343l.707-.707m12.728 0l.707.707" />
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a6 6 0 100-12 6 6 0 000 12z" />
@@ -227,10 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
     btnAddDevice.insertAdjacentHTML('beforebegin', cardHTML);
   }
 
-  // CAMBIO: Ahora busca '.device-card' para limpiar
+  // Función para LIMPIAR la rejilla
   function clearDevicesDisplay() {
     if (!devicesGrid) return;
-    // Selecciona todas las tarjetas de dispositivo generadas
     const cards = devicesGrid.querySelectorAll('.device-card'); 
     cards.forEach(card => card.remove());
   }
