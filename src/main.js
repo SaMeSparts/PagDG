@@ -3,7 +3,7 @@ import './style.css';
 
 // 2. IMPORTAR FUNCIONES DE FIREBASE
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signOut, signInWithRedirect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // 3. CONFIGURACIÓN DE FIREBASE
@@ -24,6 +24,10 @@ const db = getFirestore(app);
 
 // 5. CÓDIGO PRINCIPAL
 document.addEventListener('DOMContentLoaded', () => {
+  console.log("DOM Cargado. App Iniciada. (Versión Robusta)");
+
+  // --- Nuestra propia variable para guardar el estado del usuario ---
+  let currentUser = null;
   
   // --- LÓGICA DEL SIDEBAR (MENÚ) ---
   const openBtn = document.getElementById('open-sidebar-btn');
@@ -55,32 +59,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const navLinks = document.querySelectorAll('.nav-link');
   const contentSections = document.querySelectorAll('.page-content');
   
-  // --- Referencias a la UI de Ajustes (las movemos aquí para usarlas en más lugares) ---
   const loginSection = document.getElementById('login-section');
   const userInfoSection = document.getElementById('user-info-section');
   const userEmailDisplay = document.getElementById('user-email-display');
 
   function showPage(targetId) {
+    console.log("Mostrando página:", targetId);
     contentSections.forEach(section => section.classList.add('hidden'));
     const targetPage = document.getElementById(targetId);
     if (targetPage) targetPage.classList.remove('hidden');
   }
 
-  // CAMBIO: Nueva función centralizada para actualizar la página de Ajustes
   function updateAjustesUI(user) {
     if (user) {
-      // Usuario HA INICIADO SESIÓN
+      console.log("Actualizando UI de Ajustes: CONECTADO");
       if (loginSection) loginSection.classList.add('hidden');
       if (userInfoSection) userInfoSection.classList.remove('hidden');
       if (userEmailDisplay) userEmailDisplay.textContent = user.email;
     } else {
-      // Usuario NO ha iniciado sesión
+      console.log("Actualizando UI de Ajustes: DESCONECTADO");
       if (loginSection) loginSection.classList.remove('hidden');
       if (userInfoSection) userInfoSection.classList.add('hidden');
     }
   }
 
-  // CAMBIO: Modificamos el 'listener' de navegación
   navLinks.forEach(link => {
     link.addEventListener('click', (event) => {
       event.preventDefault(); 
@@ -88,12 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (targetId) {
         showPage(targetId);
         
-        // ¡CAMBIO CLAVE!
-        // Si la página a la que vamos es "Ajustes",
-        // llamamos manualmente a nuestra función para actualizar la UI
-        // con el estado actual del usuario.
         if (targetId === 'page-ajustes') {
-          updateAjustesUI(auth.currentUser);
+          console.log("Navegando a Ajustes. Usando 'currentUser' guardado.");
+          updateAjustesUI(currentUser);
         }
       }
       closeSidebar();
@@ -105,23 +104,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 6. LÓGICA DE AUTENTICACIÓN Y BASE DE DATOS
   
-  // --- Sección de Autenticación (Página 3: Ajustes) ---
   const btnLogin = document.getElementById('btn-login-google');
   const btnLogout = document.getElementById('btn-logout');
 
-  // CAMBIO: 'onAuthStateChanged' ahora es más simple.
-  // Solo se preocupa por cargar datos y llamar a la función de UI.
   onAuthStateChanged(auth, (user) => {
-    // 1. Actualizar la UI de Ajustes (por si acaso el usuario está en esa página)
-    updateAjustesUI(user);
+    console.log("onAuthStateChanged se disparó. El estado es:", user ? user.email : "null");
+    
+    currentUser = user; 
 
-    // 2. Cargar/limpiar datos de dispositivos
     if (user) {
-      console.log("Usuario conectado:", user.email);
       loadUserDevices(user.uid); 
     } else {
-      console.log("Usuario desconectado.");
       clearDevicesDisplay(); 
+    }
+
+    const activePage = document.querySelector('.page-content:not(.hidden)');
+    if (activePage && activePage.id === 'page-ajustes') {
+      console.log("onAuthStateChanged actualizando UI de Ajustes porque está activa.");
+      updateAjustesUI(user);
     }
   });
 
@@ -146,10 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnAddDevice) {
     btnAddDevice.addEventListener('click', async () => {
-      const user = auth.currentUser;
-      if (!user) {
+      if (!currentUser) {
         console.warn("Usuario no conectado. Redirigiendo a Ajustes.");
-        updateAjustesUI(null); // Asegurarse de que la página de Ajustes muestre el login
+        updateAjustesUI(null); 
         showPage('page-ajustes'); 
         return;
       }
@@ -161,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
           await addDoc(collection(db, "devices"), {
             name: deviceName,
             type: "light",
-            ownerUserId: user.uid
+            ownerUserId: currentUser.uid 
           });
           console.log("Dispositivo añadido");
         } catch (e) {
@@ -186,18 +185,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const docId = card ? card.dataset.docId : null;
       
       if (docId) {
-        // CAMBIO: Añadir confirmación antes de borrar
-        // 'confirm()' puede no funcionar bien en todos los navegadores
-        // pero es un inicio. Si falla, necesitaríamos un modal HTML.
-        const wantsToDelete = confirm("¿Estás seguro de que quieres eliminar este dispositivo?");
-        if (wantsToDelete) {
-          console.log("Eliminando dispositivo:", docId);
-          try {
-            await deleteDoc(doc(db, "devices", docId));
-            console.log("Dispositivo eliminado con éxito");
-          } catch (e) {
-            console.error("Error al eliminar el documento: ", e);
-          }
+        console.log("Eliminando dispositivo:", docId);
+        try {
+          await deleteDoc(doc(db, "devices", docId));
+          console.log("Dispositivo eliminado con éxito");
+        } catch (e) {
+          console.error("Error al eliminar el documento: ", e);
         }
       }
     });

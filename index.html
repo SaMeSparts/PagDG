@@ -16,7 +16,7 @@
       </nav>
     </div>
     
-      <!-- PÁGINA 1: INFORMACIÓN (Sin cambios) -->
+      <!-- PÁGINA 1: INFORMACIÓN -->
     <div id="page-informacion" class="flex flex-col items-center hidden w-full page-content"> 
       <section class="flex items-center text-center">
         <h1 class="mb-10 font-sans text-3xl font-bold text-green-800 uppercase font-stretch-extra-expanded text-shadow-lg font-merriweather">
@@ -51,7 +51,7 @@
       <button class="z-10 px-4 py-2 mt-6 mb-4 font-bold text-white uppercase bg-green-600 border-2 border-green-800 rounded-lg hover:bg-green-700" onclick="window.location.href='https://maze-binary-92200120.figma.site/'">Prototipo de interfaz</button>
     </div> 	
 
-      <!-- PÁGINA 2: DISPOSITIVOS (Sin cambios) -->
+      <!-- PÁGINA 2: DISPOSITIVOS -->
     <div id="page-dispositivos" class="flex flex-col items-center hidden w-full pt-20 page-content">
       
       <section class="flex items-center text-center">
@@ -80,7 +80,7 @@
     </div>
 
       
-      <!-- PÁGINA 3: AJUSTES (Sin cambios) -->
+      <!-- PÁGINA 3: AJUSTES -->
     <div id="page-ajustes" class="flex flex-col items-center w-full pt-20 page-content">
       
       <section class="flex items-center text-center">
@@ -99,7 +99,7 @@
               Conecta tu cuenta para guardar y sincronizar tus dispositivos.
             </p>
             <button id="btn-login-google" class="flex items-center justify-center px-4 py-2 mt-6 font-bold text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50">
-              <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google logo" class="w-10 h-5 mr-2">
+              <img src="https://google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google logo" class="w-10 h-5 mr-2">
               Iniciar sesión con Google
             </button>
           </section>
@@ -131,12 +131,13 @@
           <a href="#" class="p-2 text-gray-700 rounded nav-link hover:bg-gray-200" data-target="page-dispositivos">Dispositivos</a>
           <a href="#" class="p-2 text-gray-700 rounded nav-link hover:bg-gray-200" data-target="page-informacion">Información</a>
           <a href="#" class="p-2 text-gray-700 rounded nav-link hover:bg-gray-200" data-target="page-ajustes">Ajustes</a>
-          
-          <!-- CAMBIO: Añadido id="btn-logout-sidebar" -->
-          <a href="#" id="btn-logout-sidebar" class="p-2 text-gray-700 rounded hover:bg-gray-200">Cerrar Sesión</a>
         </nav>
     </div>
 
-    <script type="module" src="./src/main.js"></script>
+    <!-- 
+      CAMBIO CLAVE:
+      Añadido ?v=3 para forzar al navegador a descargar el nuevo main.js
+    -->
+    <script type="module" src="./src/main.js?v=3"></script>
   </body>
 </html>
