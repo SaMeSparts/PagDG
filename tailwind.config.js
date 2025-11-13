@@ -9,6 +9,7 @@ export default {
       fontFamily: {
         roboto: ['"Roboto Condensed"', 'sans-serif'],
         stack: ['"Stack Sans Notch"', 'sans-serif'],
+        merriweather: ['"Merriweather"', 'serif'],
       },
     },
   },
