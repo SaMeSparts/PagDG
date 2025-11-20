@@ -67,24 +67,10 @@
           Añade y gestiona tus dispositivos EFI-VOLT.
         </p>
 
-        <div class="w-full p-6 mb-8 text-white shadow-lg bg-gradient-to-r from-blue-600 to-blue-400 rounded-xl">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-2xl font-bold font-merriweather">Monitor EFI-VOLT</h2>
-              <p class="text-sm text-blue-100 font-roboto">Lectura en tiempo real desde ESP32</p>
-            </div>
-            <div class="text-right">
-              <span id="live-voltage" class="text-5xl font-bold font-stack">--</span>
-              <span class="text-2xl">V</span>
-            </div>
-          </div>
-        </div>
-
         <div id="devices-grid" class="grid grid-cols-2 gap-4 md:grid-cols-4">
           
           <button id="btn-add-device" class="flex flex-col items-center justify-center p-4 text-green-700 transition-colors border-2 border-green-400 border-dashed rounded-lg bg-green-50 aspect-square hover:bg-green-100">
               <img src="./mas.png" class="fill-green-400">
-          
             <span class="mt-2 text-sm font-semibold font-roboto">Añadir</span>
           </button>
           <!-- ... tarjetas de dispositivos se insertan aquí ... -->
@@ -145,6 +131,39 @@
           <a href="#" class="p-2 text-gray-700 rounded nav-link hover:bg-gray-200" data-target="page-informacion">Información</a>
           <a href="#" class="p-2 text-gray-700 rounded nav-link hover:bg-gray-200" data-target="page-ajustes">Ajustes</a>
         </nav>
+    </div>
+
+    <div id="device-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden transition-opacity bg-black bg-opacity-50 backdrop-blur-sm">
+      <div class="relative w-full max-w-md p-6 mx-4 bg-white border-t-8 border-green-600 rounded-lg shadow-2xl">
+          
+          <button id="close-modal-btn" class="absolute text-gray-400 transition-colors top-3 right-3 hover:text-red-500">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+
+          <h2 id="modal-device-name" class="mb-2 text-2xl font-bold text-center text-gray-800 font-merriweather">Nombre Dispositivo</h2>
+          <p class="text-xs tracking-widest text-center text-gray-500 uppercase">Estado en tiempo real</p>
+
+          <div class="flex flex-col items-center justify-center my-8">
+            <div class="relative flex items-center justify-center w-48 h-48 border-8 border-green-100 rounded-full shadow-inner bg-green-50">
+              <div class="text-center">
+                 <span id="modal-voltage" class="text-5xl font-bold text-green-700 font-stack">--</span>
+                 <span class="text-xl text-green-600">V</span>
+              </div>
+              <div class="absolute inset-0 border-4 border-green-500 rounded-full opacity-50 border-t-transparent animate-spin" style="animation-duration: 3s;"></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 mb-4 text-center">
+            <div class="p-3 rounded-lg bg-gray-50">
+              <p class="text-xs text-gray-500">Promedio de la sesión</p>
+              <p class="text-xl font-bold text-gray-700"><span id="modal-avg">--</span> V</p>
+            </div>
+          </div>
+
+          <div class="mt-6 text-center">
+            <p class="text-xs italic text-gray-400">Datos sincronizados con ESP32 vía Firebase</p>
+          </div>
+      </div>
     </div>
 
     <!-- 

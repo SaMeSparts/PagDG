@@ -1,48 +1,49 @@
 // 1. IMPORTAR ESTILOS
 import "./style.css";
 
-// 2. IMPORTAR FIREBASE
-// NOTA: Asegúrate de haber actualizado también tu archivo firebase.js para exportar 'database'
 import { auth, provider, signInWithPopup, database } from "./firebase.js";
 import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-// Importamos las herramientas para la Base de Datos en Tiempo Real
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, off } from "firebase/database";
 
-// 3. INICIALIZAR FIRESTORE (Para guardar los dispositivos)
 const db = getFirestore();
 
-// 4. CÓDIGO PRINCIPAL
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM Cargado. App iniciada ✔");
 
   let currentUser = null;
+  let currentListenerRef = null; // Para guardar la referencia de escucha activa
 
-  // --- SIDEBAR (MENÚ LATERAL) ---
+  // --- UI ELEMENTS ---
+  const modal = document.getElementById("device-modal");
+  const closeModalBtn = document.getElementById("close-modal-btn");
+  const modalTitle = document.getElementById("modal-device-name");
+  const modalVoltage = document.getElementById("modal-voltage");
+  const modalAvg = document.getElementById("modal-avg");
+
+  // --- SIDEBAR & NAV ---
   const openBtn = document.getElementById("open-sidebar-btn");
   const closeBtn = document.getElementById("close-sidebar-btn");
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("overlay");
+  const navLinks = document.querySelectorAll(".nav-link");
+  const contentSections = document.querySelectorAll(".page-content");
 
+  // --- SIDEBAR LOGIC ---
   function openSidebar() {
     sidebar?.classList.remove("translate-x-full");
     sidebar?.classList.add("translate-x-0");
     overlay?.classList.remove("hidden");
   }
-
   function closeSidebar() {
     sidebar?.classList.add("translate-x-full");
     overlay?.classList.add("hidden");
   }
-
   openBtn?.addEventListener("click", openSidebar);
   closeBtn?.addEventListener("click", closeSidebar);
   overlay?.addEventListener("click", closeSidebar);
 
-  // --- CAMBIO DE PÁGINAS (NAVEGACIÓN) ---
-  const navLinks = document.querySelectorAll(".nav-link");
-  const contentSections = document.querySelectorAll(".page-content");
-
+  // --- PAGE NAVIGATION ---
   const loginSection = document.getElementById("login-section");
   const userInfoSection = document.getElementById("user-info-section");
   const userEmailDisplay = document.getElementById("user-email-display");
@@ -74,148 +75,164 @@ document.addEventListener("DOMContentLoaded", () => {
       closeSidebar();
     });
   });
-
-  // Página inicial por defecto
   showPage("page-dispositivos");
 
-  // --- AUTENTICACIÓN (GOOGLE) ---
+  // --- AUTHENTICATION ---
   const btnLogin = document.getElementById("btn-login-google");
   const btnLogout = document.getElementById("btn-logout");
 
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
     updateAjustesUI(user);
-
     if (user) loadUserDevices(user.uid);
     else clearDevicesDisplay();
   });
 
-  // Login con Google
   btnLogin?.addEventListener("click", async () => {
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error("Error en login:", error);
-    }
+    try { await signInWithPopup(auth, provider); } 
+    catch (error) { console.error("Error login:", error); }
   });
 
-  // Logout
   btnLogout?.addEventListener("click", () => {
-    signOut(auth).catch((error) => console.error("Error al cerrar sesión:", error));
+    signOut(auth).catch((e) => console.error(e));
   });
 
-  // --- GESTIÓN DE DISPOSITIVOS (FIRESTORE) ---
+  // --- DEVICES LOGIC ---
   const btnAddDevice = document.getElementById("btn-add-device");
   const devicesGrid = document.getElementById("devices-grid");
 
+  // 1. AÑADIR DISPOSITIVO
   btnAddDevice?.addEventListener("click", async () => {
     if (!currentUser) {
+      alert("Debes iniciar sesión primero.");
       showPage("page-ajustes");
-      return; // Si no hay usuario, no deja añadir
+      return;
     }
 
-    const deviceName = prompt("Nombre del dispositivo:");
+    const deviceName = prompt("Nombre del dispositivo (Ej: Sala):");
+    if (!deviceName) return;
 
-    if (deviceName?.trim()) {
-      try {
-        await addDoc(collection(db, "devices"), {
-          name: deviceName,
-          type: "light",
-          ownerUserId: currentUser.uid,
-        });
-      } catch (e) {
-        console.error("Error al añadir documento:", e);
-      }
-    }
-  });
+    // IMPORTANTE: Aquí definimos a qué parte de la Base de Datos se conecta.
+    // Como tu ESP32 escribe en "/Sensores", usaremos eso por defecto.
+    // Si tuvieras varios ESP32, aquí pedirías el ID único.
+    const sensorPath = "Sensores"; 
 
-  // Borrar dispositivo (Evento delegado)
-  devicesGrid?.addEventListener("click", async (event) => {
-    const deleteBtn = event.target.closest(".btn-delete-device");
-    if (!deleteBtn) return;
-
-    const card = deleteBtn.closest(".device-card");
-    const docId = card?.dataset.docId;
-
-    if (docId) {
-      // Confirmación simple antes de borrar
-      if(confirm("¿Seguro que quieres borrar este dispositivo?")) {
-        await deleteDoc(doc(db, "devices", docId));
-      }
+    try {
+      await addDoc(collection(db, "devices"), {
+        name: deviceName,
+        sensorPath: sensorPath, // Guardamos la ruta
+        ownerUserId: currentUser.uid,
+        createdAt: new Date()
+      });
+    } catch (e) {
+      console.error("Error añadiendo:", e);
     }
   });
 
+  // 2. CARGAR DISPOSITIVOS (FIRESTORE)
   function loadUserDevices(userId) {
     const q = query(collection(db, "devices"), where("ownerUserId", "==", userId));
-
-    onSnapshot(
-      q,
-      (snapshot) => {
+    onSnapshot(q, (snapshot) => {
         clearDevicesDisplay();
         snapshot.forEach((docItem) => {
           const device = docItem.data();
-          createDeviceCard(device.name, docItem.id);
+          createDeviceCard(device, docItem.id);
         });
-      },
-      (error) => console.error("Error al cargar dispositivos:", error)
-    );
+      });
   }
 
-  function createDeviceCard(name, id) {
+  function createDeviceCard(device, id) {
     const cardHTML = `
-      <div data-doc-id="${id}" class="device-card relative flex flex-col items-center p-4 bg-white shadow-md rounded-lg aspect-square transition-transform hover:scale-105">
-        <button class="btn-delete-device absolute top-2 right-2 text-gray-400 hover:text-red-600" title="Eliminar">
+      <div data-doc-id="${id}" data-sensor-path="${device.sensorPath}" 
+           class="device-card relative flex flex-col items-center p-4 bg-white shadow-md rounded-lg aspect-square transition-transform hover:scale-105 cursor-pointer border border-gray-200 hover:border-green-500 group">
+        
+        <button class="btn-delete-device absolute top-2 right-2 text-gray-300 hover:text-red-600 z-10">
           ✕
         </button>
-        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-        <span class="mt-2 font-semibold text-center">${name}</span>
+        
+        <div class="flex-1 flex items-center justify-center">
+           <img src="./rayo.png" class="w-12 h-12 opacity-80 group-hover:opacity-100 transition-opacity" alt="Icono">
+        </div>
+        
+        <span class="mt-2 font-semibold text-center text-gray-700 group-hover:text-green-700">${device.name}</span>
+        <span class="text-xs text-gray-400">Click para ver</span>
       </div>
     `;
-    // Insertamos antes del botón de "Añadir"
     btnAddDevice.insertAdjacentHTML("beforebegin", cardHTML);
   }
 
   function clearDevicesDisplay() {
-    // Elimina todas las tarjetas MENOS el botón de añadir
     const cards = devicesGrid?.querySelectorAll(".device-card");
     cards?.forEach((c) => c.remove());
   }
 
-  // ============================================================
-  //  NUEVO: LECTURA DE SENSORES EN TIEMPO REAL (EFI-VOLT)
-  // ============================================================
-  const voltageDisplay = document.getElementById("live-voltage");
-  
-  if (voltageDisplay) {
-    // Referencia a la ruta exacta donde el ESP32 escribe
-    // Asegúrate de que en Firebase sea igual: /Sensores/Voltaje
-    const sensorRef = ref(database, 'Sensores/Voltaje');
+  // 3. MANEJO DE CLICKS (ABRIR MODAL O BORRAR)
+  devicesGrid?.addEventListener("click", async (event) => {
+    const target = event.target;
+    const card = target.closest(".device-card");
+    
+    if (!card) return;
 
-    console.log("Iniciando escucha de sensores...");
+    // Si clickeó en borrar
+    if (target.closest(".btn-delete-device")) {
+      if(confirm("¿Borrar este dispositivo?")) {
+        const docId = card.dataset.docId;
+        await deleteDoc(doc(db, "devices", docId));
+      }
+      return;
+    }
 
-    onValue(sensorRef, (snapshot) => {
-      const data = snapshot.val();
-      
-      // Verificamos que el dato exista
-      if (data !== null) {
-        console.log("⚡ Voltaje recibido del ESP32:", data);
-        voltageDisplay.innerText = data;
+    // Si clickeó en la tarjeta (ABRIR MODAL)
+    const deviceName = card.querySelector("span").textContent;
+    const sensorPath = card.dataset.sensorPath; // Recuperamos la ruta "Sensores"
+    openDeviceModal(deviceName, sensorPath);
+  });
+
+  // --- MODAL LOGIC (REALTIME DATABASE) ---
+
+  function openDeviceModal(name, path) {
+    modalTitle.innerText = name;
+    modal.classList.remove("hidden");
+    
+    // Reiniciar valores visuales
+    modalVoltage.innerText = "--";
+    modalAvg.innerText = "--";
+
+    // CONECTAR A FIREBASE REALTIME
+    // Construimos la referencia: "Sensores/Voltaje"
+    const voltageRef = ref(database, `${path}/Voltaje`);
+    
+    // Guardamos la referencia para poder apagarla luego
+    currentListenerRef = voltageRef;
+
+    onValue(voltageRef, (snapshot) => {
+      const val = snapshot.val();
+      if (val !== null) {
+        modalVoltage.innerText = val;
         
-        // Efecto visual simple: Color según valor
-        // Si es menor a 10V lo ponemos rojo (ejemplo), sino blanco
-        if(parseFloat(data) < 10) {
-            voltageDisplay.style.color = "#ffcccc"; // Rojo claro
-        } else {
-            voltageDisplay.style.color = "#ffffff"; // Blanco
-        }
-      } else {
-        voltageDisplay.innerText = "--";
+        // Lógica simple de promedio (simulada visualmente o real si tuvieras más datos)
+        // Aquí mostramos el mismo valor o un cálculo si quisieras
+        modalAvg.innerText = val; 
       }
     });
-  } else {
-    console.warn("⚠️ No encontré el elemento con id='live-voltage'. Recuerda añadir el bloque HTML en index.html.");
   }
+
+  function closeDeviceModal() {
+    modal.classList.add("hidden");
+    
+    // IMPORTANTE: Dejar de escuchar a Firebase para ahorrar datos
+    if (currentListenerRef) {
+      off(currentListenerRef);
+      currentListenerRef = null;
+      console.log("Desconectado del sensor.");
+    }
+  }
+
+  closeModalBtn?.addEventListener("click", closeDeviceModal);
+  
+  // Cerrar si clickean fuera del cuadro blanco
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) closeDeviceModal();
+  });
 
 });
