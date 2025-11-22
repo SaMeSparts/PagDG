@@ -179,9 +179,17 @@ document.addEventListener("DOMContentLoaded", () => {
         plugins: { legend: { display: false } },
         scales: {
           y: {
-            beginAtZero: false,
+            // FIJAMOS EL RANGO DE 20V a 40V
+            min: 20, 
+            max: 40,
+            
             border: { display: false },
-            grid: { color: '#e5e7eb', borderDash: [5, 5] }
+            grid: { color: '#e5e7eb', borderDash: [5, 5] },
+            ticks: {
+                stepSize: 5, // Mostrará líneas en 20, 25, 30, 35, 40
+                color: '#9ca3af',
+                font: { size: 10 }
+            }
           },
           x: { 
              type: 'linear', 
