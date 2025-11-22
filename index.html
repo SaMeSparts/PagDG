@@ -7,6 +7,7 @@
   </head>
 
   <body class="relative flex flex-col items-center justify-center min-h-screen bg-no-repeat bg-gradient-to-b from-white to-green-500">
+    
     <div>
       <nav class="absolute top-0 left-0 flex items-center justify-center w-full h-16 p-4 bg-gray-100 border-b-4 border-green-600 shadow-md">
         <img class="absolute left-0 h-10 mt-2 rounded-md w-44 md:w-36" src="./logo.jpg" alt="Logo EFI-VOLT" />
@@ -16,44 +17,42 @@
       </nav>
     </div>
     
-      <!-- PÁGINA 1: INFORMACIÓN -->
     <div id="page-informacion" class="flex flex-col items-center hidden w-full page-content"> 
       <section class="flex items-center text-center">
         <h1 class="mb-10 font-sans text-3xl font-bold text-green-800 uppercase font-stretch-extra-expanded text-shadow-lg font-merriweather">
           Información del Proyecto EFI-VOLT
         </h1>
       </section>
+      
       <main class="flex items-center justify-center px-2 mx-10 bg-white border-b-4 border-r-4 border-green-600 rounded-lg hover:shadow-lg">
         <section class="flex flex-col max-w-lg px-4 overflow-auto text-black max-h-80 md:max-w-xl md:max-h-96 ">
           <section class="p-2">
             <img src="./foto1.jpg" alt="Descripción foto 1" class="h-auto mx-auto mb-2 rounded-lg shadow-md w-60 md:float-right md:ml-4" />
             <h1 class="text-xl font-stack">DESCRIPCIÓN DEL PROYECTO</h1>
             <p class="text-xs text-justify font-roboto">
-                El usuario principal es cualquier persona interesada en conocer, monitorear y gestionar su consumo eléctrico de manera práctica; enfocada principalmente en 	viviendas, oficinas o negocios con intereses en eficiencia energética y que busquen formas de reducir gastos. También es útil para técnicos, ingenieros y estudiantes que deseen observar el comportamiento eléctrico. EFI-VOLT. 	El sistema está pensado para ser intuitivo, permitiendo que cualquier usuario, incluso sin experiencia técnica, pueda comprender las mediciones sin mayores complicaciones y tomar decisiones informadas, respaldadas por el uso de la página de gestión energética. Gracias al uso de sensores IoT, la información recolectada es confiable, precisa y se actualiza constantemente, sin ser tan costoso, permitiendo un control más dinámico (facilitado) y moderno del consumo energético.
+                El usuario principal es cualquier persona interesada en conocer, monitorear y gestionar su consumo eléctrico...
             </p>
           </section>
           <div class="clear-both pt-4 ">
             <img src="./foto2.jpg" alt="Descripción foto 2" class="h-auto mx-auto mt-4 mb-2 rounded-lg shadow-md w-60 md:float-left md:mr-4" />
             <h2 class="mt-4 text-lg font-stack">¿En qué situaciones utilizará la interfaz?</h2>
             <p class="mt-2 text-xs leading-relaxed text-justify font-roboto">
-              La interfaz puede ser utilizada en diferentes contextos, tanto en el hogar como en entornos laborales. Por ejemplo, el usuario puede acceder a ella para revisar el consumo durante el día, detectar picos de energía inusuales o identificar si algún aparato está consumiendo más electricidad de lo esperado por medio de la colecta de los sistemas IOT, así como en oficinas o pequeños negocios, puede ser utilizada para supervisar horarios de uso de maquinaria, iluminación o equipos de cómputo, ajustando su funcionamiento según la demanda. También resulta útil al final de la jornada o la semana para evaluar los hábitos de consumo y planear algunas estrategias de ahorro energético. En todos estos casos, esta interfaz ofrece información inmediata proveniente de sensores, lo que garantiza una observación en tiempo real y una respuesta rápida ante cualquier cambio en el sistema eléctrico, algo fundamental para mantener la eficiencia y evitar gastos innecesarios de manera general.
+              La interfaz puede ser utilizada en diferentes contextos...
             </p>
           </div>
           <div class="clear-both pt-4 ">
             <img src="./foto3.jpg" alt="Descripción foto 3" class="h-auto mx-auto mb-2 rounded-lg shadow-md w-60 md:float-right md:ml-4" />
             <h2 class="mt-4 text-lg font-stack">¿Qué información necesita ver de forma inmediata?</h2>
             <p class="mt-2 text-xs leading-relaxed text-justify font-roboto">
-              Con el uso de ambos, sensor de corriente y voltaje, 	el usuario podría acceder rápidamente a los indicadores más relevantes, como el consumo actual (kW), el consumo acumulado del día (kWh) y el costo estimado generado hasta el momento. Esta información debe mostrarse de forma visual 	 mediante la interfaz gráfica y la página . Al visualizar las variaciones y tendencias de manera gráfica, el usuario puede detectar patrones, identificar momentos de mayor demanda y comprender mejor su gasto 	energético. Además es fundamental que tenga acceso inmediato a los controles de los dispositivos conectados para actuar con rapidez, ya sea apagando un aparato o modificando su configuración de consumo energético; este de monitoreo y control, basado en sensores IoT, representa una ventaja significativa frente a los métodos tradicionales, ya que brinda información precisa, actualizada y accesible desde cualquier lugar, impulsando un uso más eficiente y responsable de la energía, nuevamente impulsado por la propuesta de EFI-VOLT , de tener al alcance la gestión energética de manera sencilla.
+              Con el uso de ambos, sensor de corriente y voltaje...
             </p>
           </div>
         </section>
       </main>
       <button class="z-10 px-4 py-2 mt-6 mb-4 font-bold text-white uppercase bg-green-600 border-2 border-green-800 rounded-lg hover:bg-green-700" onclick="window.location.href='https://maze-binary-92200120.figma.site/'">Prototipo de interfaz</button>
-    </div> 	
+    </div>  
 
-      <!-- PÁGINA 2: DISPOSITIVOS -->
     <div id="page-dispositivos" class="flex flex-col items-center hidden w-full pt-20 page-content">
-      
       <section class="flex items-center text-center">
         <h1 class="mb-10 font-sans text-3xl font-bold text-green-800 uppercase font-merriweather">
           Dispositivos Conectados
@@ -61,27 +60,21 @@
       </section>
 
       <main class="flex flex-col p-6 mx-10 bg-white border-b-4 border-r-4 border-green-600 rounded-lg hover:shadow-lg w-full max-w-6xl h-[70vh] overflow-auto">
-        
         <h1 class="text-xl font-stack">Mis Dispositivos</h1>
         <p class="mt-2 mb-4 text-justify font-roboto">
           Añade y gestiona tus dispositivos EFI-VOLT.
         </p>
 
         <div id="devices-grid" class="grid grid-cols-2 gap-4 md:grid-cols-4">
-          
           <button id="btn-add-device" class="flex flex-col items-center justify-center p-4 text-green-700 transition-colors border-2 border-green-400 border-dashed rounded-lg bg-green-50 aspect-square hover:bg-green-100">
               <img src="./mas.png" class="fill-green-400">
             <span class="mt-2 text-sm font-semibold font-roboto">Añadir</span>
           </button>
-          <!-- ... tarjetas de dispositivos se insertan aquí ... -->
         </div>
       </main>
     </div>
-
       
-      <!-- PÁGINA 3: AJUSTES -->
     <div id="page-ajustes" class="flex flex-col items-center w-full pt-20 page-content">
-      
       <section class="flex items-center text-center">
         <h1 class="mb-10 font-sans text-3xl font-bold text-green-800 uppercase font-merriweather">
           Ajustes de la Cuenta
@@ -89,9 +82,7 @@
       </section>
 
       <main class="flex items-center justify-center px-2 mx-10 bg-white border-b-4 border-r-4 border-green-600 rounded-lg hover:shadow-lg">
-        
         <section class="flex flex-col w-full max-w-lg px-4 py-6 overflow-auto text-black max-h-96 md:max-w-xl">
-          
           <section id="login-section" class="">
             <h1 class="text-xl font-stack">Iniciar Sesión</h1>
             <p class="mt-4 text-sm font-roboto">
@@ -116,7 +107,6 @@
       </main>
     </div>
 
-    <!-- SIDEBAR -->
     <div id="overlay" class="fixed inset-0 z-40 hidden bg-black bg-opacity-60"></div>
     <div id="sidebar" 
          class="fixed top-0 right-0 z-50 w-64 h-full p-5 transition-transform duration-300 ease-in-out transform translate-x-full bg-gray-100 shadow-lg rounded-tl-md rounded-bl-md">
@@ -134,41 +124,48 @@
     </div>
 
     <div id="device-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden transition-opacity bg-black bg-opacity-50 backdrop-blur-sm">
-      <div class="relative w-full max-w-md p-6 mx-4 bg-white border-t-8 border-green-600 rounded-lg shadow-2xl">
+      <div class="relative w-full max-w-md p-6 mx-4 bg-white border-t-8 border-green-600 rounded-lg shadow-2xl max-h-[95vh] overflow-y-auto">
           
-          <button id="close-modal-btn" class="absolute text-gray-400 transition-colors top-3 right-3 hover:text-red-500">
+          <button id="close-modal-btn" class="absolute z-10 text-gray-400 transition-colors top-3 right-3 hover:text-red-500">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
 
           <h2 id="modal-device-name" class="mb-2 text-2xl font-bold text-center text-gray-800 font-merriweather">Nombre Dispositivo</h2>
-          <p class="text-xs tracking-widest text-center text-gray-500 uppercase">Estado en tiempo real</p>
-
-          <div class="flex flex-col items-center justify-center my-8">
+          
+          <div class="flex flex-col items-center justify-center my-4">
             <div class="relative flex items-center justify-center w-48 h-48 border-8 border-green-100 rounded-full shadow-inner bg-green-50">
               <div class="text-center">
-                 <span id="modal-voltage" class="text-5xl font-bold text-green-700 font-stack">--</span>
-                 <span class="text-xl text-green-600">V</span>
+                 <span id="modal-voltage" class="text-4xl font-bold text-green-700 font-stack">--</span>
+                 <span class="text-lg text-green-600">V</span>
               </div>
               <div class="absolute inset-0 border-4 border-green-500 rounded-full opacity-50 border-t-transparent animate-spin" style="animation-duration: 3s;"></div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 gap-4 mb-4 text-center">
-            <div class="p-3 rounded-lg bg-gray-50">
-              <p class="text-xs text-gray-500">Promedio de la sesión</p>
-              <p class="text-xl font-bold text-gray-700"><span id="modal-avg">--</span> V</p>
-            </div>
+          <div class="w-full h-48 p-2 mb-4 bg-white border border-gray-100 rounded-lg">
+            <canvas id="voltageChart"></canvas>
           </div>
 
-          <div class="mt-6 text-center">
-            <p class="text-xs italic text-gray-400">Datos sincronizados con ESP32 vía Firebase</p>
+          <div class="grid grid-cols-2 gap-3 mb-4 text-center">
+            
+            <div class="flex flex-col justify-center p-3 border border-gray-100 rounded-lg bg-gray-50">
+              <span class="mb-1 text-xs text-gray-500">Voltaje Prom.</span>
+              <span class="text-lg font-bold text-gray-700"><span id="modal-avg">--</span> V</span>
+            </div>
+
+            <div class="flex flex-col justify-center p-3 border border-green-100 rounded-lg bg-green-50">
+              <span class="mb-1 text-xs text-green-600">Gasto Estimado</span>
+              <span class="text-lg font-bold text-green-800">$<span id="modal-cost">0.00</span></span>
+            </div>
+            
+          </div>
+
+          <div class="mt-4 text-center">
+            <p class="text-xs italic text-gray-400">Datos en tiempo real vía Firebase</p>
           </div>
       </div>
     </div>
 
-    <!-- 
-      ¡ESTA ES LA LÍNEA MÁS IMPORTANTE!
-    -->
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

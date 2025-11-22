@@ -1,11 +1,9 @@
-// 1. IMPORTAR ESTILOS
 import "./style.css";
-
-// 2. IMPORTAR FIREBASE Y FUNCIONES NECESARIAS
+import Chart from 'chart.js/auto';
 import { auth, provider, signInWithPopup, database } from "./firebase.js";
 import { getFirestore, collection, addDoc, query, where, onSnapshot, doc, deleteDoc } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { ref, onValue, off } from "firebase/database";
+import { ref, onValue, off, get, query as queryDb, limitToLast } from "firebase/database";
 
 const db = getFirestore();
 
@@ -14,35 +12,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentUser = null;
   let currentListenerRef = null; 
-  let connectionWatchdog = null; // Temporizador para detectar desconexión
+  let connectionWatchdog = null;
+  let myChart = null; 
 
-  // --- ELEMENTOS DEL UI ---
+  // --- UI ELEMENTS ---
   const modal = document.getElementById("device-modal");
   const closeModalBtn = document.getElementById("close-modal-btn");
   const modalTitle = document.getElementById("modal-device-name");
   const modalVoltage = document.getElementById("modal-voltage");
+  
+  // ELEMENTOS DE DATOS
   const modalAvg = document.getElementById("modal-avg");
-  const statusBadge = document.createElement("div"); // Badge de estado (Online/Offline)
-
-  // Insertamos el badge de estado en el modal dinámicamente
+  const modalCost = document.getElementById("modal-cost"); // <--- ¡NUEVO! Para el dinero
+  
+  const statusBadge = document.createElement("div"); 
   statusBadge.className = "absolute px-3 py-1 text-xs font-bold tracking-wider uppercase rounded-full top-4 left-4";
-  document.querySelector("#device-modal > div > div").appendChild(statusBadge);
+  document.querySelector("#device-modal > div").appendChild(statusBadge);
 
-  // --- FUNCIONES DE NAVEGACIÓN (SIDEBAR & PAGES) ---
-  // (Mismo código de siempre para sidebar y navegación)
+  // --- NAVEGACIÓN Y SIDEBAR ---
   const openBtn = document.getElementById("open-sidebar-btn");
   const closeBtn = document.getElementById("close-sidebar-btn");
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("overlay");
-  const navLinks = document.querySelectorAll(".nav-link");
-  const contentSections = document.querySelectorAll(".page-content");
-
   function openSidebar() { sidebar?.classList.remove("translate-x-full"); overlay?.classList.remove("hidden"); }
   function closeSidebar() { sidebar?.classList.add("translate-x-full"); overlay?.classList.add("hidden"); }
   openBtn?.addEventListener("click", openSidebar);
   closeBtn?.addEventListener("click", closeSidebar);
   overlay?.addEventListener("click", closeSidebar);
 
+  const navLinks = document.querySelectorAll(".nav-link");
+  const contentSections = document.querySelectorAll(".page-content");
   const loginSection = document.getElementById("login-section");
   const userInfoSection = document.getElementById("user-info-section");
   const userEmailDisplay = document.getElementById("user-email-display");
@@ -61,7 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
       userInfoSection?.classList.add("hidden");
     }
   }
-
   navLinks.forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
@@ -72,55 +70,34 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   showPage("page-dispositivos");
 
-  // --- AUTENTICACIÓN ---
+  // --- AUTH ---
   const btnLogin = document.getElementById("btn-login-google");
   const btnLogout = document.getElementById("btn-logout");
-
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
     updateAjustesUI(user);
     if (user) loadUserDevices(user.uid);
     else clearDevicesDisplay();
   });
-
-  btnLogin?.addEventListener("click", async () => { try { await signInWithPopup(auth, provider); } catch (error) { console.error(error); } });
+  btnLogin?.addEventListener("click", async () => { try { await signInWithPopup(auth, provider); } catch (e) { console.error(e); } });
   btnLogout?.addEventListener("click", () => { signOut(auth).catch((e) => console.error(e)); });
 
-  // --- LÓGICA DE DISPOSITIVOS ---
+  // --- DISPOSITIVOS ---
   const btnAddDevice = document.getElementById("btn-add-device");
   const devicesGrid = document.getElementById("devices-grid");
 
-  // 1. AÑADIR DISPOSITIVO (AHORA PIDE ID)
   btnAddDevice?.addEventListener("click", async () => {
-    if (!currentUser) { alert("Inicia sesión primero."); showPage("page-ajustes"); return; }
-
-    const deviceName = prompt("Nombre del dispositivo (Ej: Sala):");
+    if (!currentUser) { alert("Inicia sesión."); showPage("page-ajustes"); return; }
+    const deviceName = prompt("Nombre (Ej: Sala):");
     if (!deviceName) return;
-
-    // ¡AQUÍ PEDIMOS EL ID DEL ESP32!
-    const deviceId = prompt("Ingresa el ID del dispositivo (Lo viste en el Monitor Serie del Arduino):");
+    const deviceId = prompt("ID del Dispositivo (Ver Monitor Serie):");
     if (!deviceId) return;
-
-    try {
-      await addDoc(collection(db, "devices"), {
-        name: deviceName,
-        deviceId: deviceId.trim(), // Guardamos el ID único
-        ownerUserId: currentUser.uid,
-        createdAt: new Date()
-      });
-    } catch (e) { console.error("Error añadiendo:", e); }
+    try { await addDoc(collection(db, "devices"), { name: deviceName, deviceId: deviceId.trim(), ownerUserId: currentUser.uid, createdAt: new Date() }); } catch (e) { console.error(e); }
   });
 
-  // 2. CARGAR Y MOSTRAR TARJETAS
   function loadUserDevices(userId) {
     const q = query(collection(db, "devices"), where("ownerUserId", "==", userId));
-    onSnapshot(q, (snapshot) => {
-        clearDevicesDisplay();
-        snapshot.forEach((docItem) => {
-          const device = docItem.data();
-          createDeviceCard(device, docItem.id);
-        });
-      });
+    onSnapshot(q, (snapshot) => { clearDevicesDisplay(); snapshot.forEach((docItem) => { createDeviceCard(docItem.data(), docItem.id); }); });
   }
 
   function createDeviceCard(device, id) {
@@ -140,100 +117,173 @@ document.addEventListener("DOMContentLoaded", () => {
     btnAddDevice.insertAdjacentHTML("beforebegin", cardHTML);
   }
 
-  function clearDevicesDisplay() {
-    const cards = devicesGrid?.querySelectorAll(".device-card");
-    cards?.forEach((c) => c.remove());
-  }
+  function clearDevicesDisplay() { devicesGrid?.querySelectorAll(".device-card").forEach((c) => c.remove()); }
 
   devicesGrid?.addEventListener("click", async (event) => {
     const target = event.target;
     const card = target.closest(".device-card");
     if (!card) return;
-
     if (target.closest(".btn-delete-device")) {
-      if(confirm("¿Borrar este dispositivo?")) {
-        await deleteDoc(doc(db, "devices", card.dataset.docId));
-      }
+      if(confirm("¿Borrar?")) await deleteDoc(doc(db, "devices", card.dataset.docId));
       return;
     }
-
     const deviceName = card.querySelector("span").textContent;
     const deviceId = card.dataset.deviceId;
     openDeviceModal(deviceName, deviceId);
   });
 
-  // --- MODAL Y LÓGICA DE DESCONEXIÓN (WATCHDOG) ---
-
   function setOnlineStatus(isOnline) {
     if (isOnline) {
-      statusBadge.innerText = "🟢 CONECTADO";
+      statusBadge.innerText = "🟢 ONLINE";
       statusBadge.className = "absolute px-3 py-1 text-xs font-bold tracking-wider text-green-800 uppercase bg-green-100 border border-green-200 rounded-full top-4 left-4";
       modalVoltage.classList.remove("text-gray-400");
       modalVoltage.classList.add("text-green-700");
     } else {
-      statusBadge.innerText = "🔴 DESCONECTADO";
+      statusBadge.innerText = "🔴 OFFLINE";
       statusBadge.className = "absolute px-3 py-1 text-xs font-bold tracking-wider text-gray-600 uppercase bg-gray-200 border border-gray-300 rounded-full top-4 left-4";
       modalVoltage.classList.remove("text-green-700");
-      modalVoltage.classList.add("text-gray-400"); // Gris para indicar desconexión
+      modalVoltage.classList.add("text-gray-400");
     }
   }
 
+  // --- GRÁFICA FIJA (24 HORAS) ---
+  function initChart() {
+    const canvas = document.getElementById('voltageChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(37, 99, 235, 0.5)'); 
+    gradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)'); 
+
+    if (myChart) myChart.destroy();
+
+    myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        datasets: [{
+          label: 'Voltaje',
+          data: [], 
+          borderColor: '#3b82f6',
+          backgroundColor: gradient,
+          borderWidth: 2,
+          tension: 0.4,
+          pointRadius: 0,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: false,
+            border: { display: false },
+            grid: { color: '#e5e7eb', borderDash: [5, 5] }
+          },
+          x: { 
+             type: 'linear', 
+             min: 0, max: 24,
+             grid: { display: true, color: '#f3f4f6', borderDash: [2, 2] },
+             ticks: {
+                 stepSize: 3, 
+                 color: '#9ca3af',
+                 font: { size: 10 },
+                 callback: function(value) {
+                    if (value === 24) return "23:59";
+                    const hora = Math.floor(value).toString().padStart(2, '0');
+                    return hora + ":00";
+                 }
+             }
+          }
+        }
+      }
+    });
+  }
+
+  // --- ABRIR MODAL (CARGA DE DATOS) ---
   function openDeviceModal(name, deviceId) {
     modalTitle.innerText = name;
     modal.classList.remove("hidden");
     
-    // Reiniciamos UI
+    // Resetear UI
     modalVoltage.innerText = "--";
     modalAvg.innerText = "--";
+    if (modalCost) modalCost.innerText = "0.0000"; // Reset dinero
     
-    // 1. AL ABRIR, ASUMIMOS QUE ESTÁ DESCONECTADO HASTA DEMOSTRAR LO CONTRARIO
     setOnlineStatus(false); 
+    
+    initChart();
 
+    // 1. HISTORIAL (Gráfica)
+    const historyRef = queryDb(ref(database, `Sensores/${deviceId}/Historial`), limitToLast(100));
+    
+    get(historyRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        const historyData = [];
+        snapshot.forEach((childSnapshot) => {
+          const timestamp = childSnapshot.key;
+          const voltaje = childSnapshot.val();
+          const date = new Date(timestamp * 1000); 
+          const decimalHour = date.getHours() + (date.getMinutes() / 60);
+          historyData.push({ x: decimalHour, y: voltaje });
+        });
+        if (myChart) {
+          myChart.data.datasets[0].data = historyData;
+          myChart.update();
+        }
+      }
+    }).catch((error) => console.error(error));
+
+    // 2. DATOS EN VIVO (Voltaje, Promedio, Dinero)
     const deviceRef = ref(database, `Sensores/${deviceId}`);
     currentListenerRef = deviceRef;
-    
     let lastUpdateTimestamp = 0;
 
-    // Escuchar cambios
     onValue(deviceRef, (snapshot) => {
       const data = snapshot.val();
       
       if (data) {
-        // Actualizar textos visuales
-        if (data.Voltaje !== undefined) modalVoltage.innerText = data.Voltaje;
+        // Voltaje y Gráfica
+        if (data.Voltaje !== undefined) {
+             modalVoltage.innerText = data.Voltaje;
+             if (myChart) {
+                 const now = new Date();
+                 const decimalHour = now.getHours() + (now.getMinutes() / 60);
+                 myChart.data.datasets[0].data.push({ x: decimalHour, y: data.Voltaje });
+                 myChart.data.datasets[0].data.sort((a, b) => a.x - b.x);
+                 myChart.update('none');
+             }
+        }
+
+        // Promedio
         if (data.Promedio !== undefined) modalAvg.innerText = parseFloat(data.Promedio).toFixed(2);
         
-        // --- LÓGICA INTELIGENTE DE CONEXIÓN ---
+        // --- DINERO (NUEVO) ---
+        if (data.CostoDinero !== undefined && modalCost) {
+            modalCost.innerText = parseFloat(data.CostoDinero).toFixed(4);
+        }
+
+        // Estado Online
         if (data.UltimaActulizacion) {
-            // La fecha del dato (viene en segundos desde el ESP32)
-            const dataTimeSeconds = data.UltimaActulizacion;
-            
-            // La fecha de mi computadora (Date.now() es milisegundos, dividimos por 1000)
             const myTimeSeconds = Math.floor(Date.now() / 1000);
-
-            // Calculamos la diferencia (¿Qué tan viejo es el dato?)
-            const diff = myTimeSeconds - dataTimeSeconds;
-
-            console.log(`Antigüedad del dato: ${diff} segundos`);
-
-            // Si el dato tiene menos de 15 segundos de antigüedad, es válido.
-            // Si es más viejo, es un dato "zombi" que quedó guardado.
+            const diff = myTimeSeconds - data.UltimaActulizacion;
             if (diff < 15) {
                 setOnlineStatus(true);
-                lastUpdateTimestamp = Date.now(); // Actualizamos para el watchdog
+                lastUpdateTimestamp = Date.now();
             } else {
-                setOnlineStatus(false); // Es un dato viejo, seguimos desconectados
+                setOnlineStatus(false);
             }
         }
       }
     });
 
-    // 2. WATCHDOG: Comprobar cada segundo si el dispositivo sigue vivo
     connectionWatchdog = setInterval(() => {
       const now = Date.now();
-      // Si han pasado más de 8 segundos (8000ms) desde la última actualización...
       if (now - lastUpdateTimestamp > 8000 && lastUpdateTimestamp !== 0) {
-         setOnlineStatus(false); // ...marcarlo como desconectado
+         setOnlineStatus(false);
       }
     }, 1000);
   }
@@ -242,6 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
     modal.classList.add("hidden");
     if (currentListenerRef) { off(currentListenerRef); currentListenerRef = null; }
     if (connectionWatchdog) { clearInterval(connectionWatchdog); connectionWatchdog = null; }
+    if (myChart) { myChart.destroy(); myChart = null; }
   }
 
   closeModalBtn?.addEventListener("click", closeDeviceModal);
