@@ -23,29 +23,30 @@
           Información del Proyecto EFI-VOLT
         </h1>
       </section>
-      
       <main class="flex items-center justify-center px-2 mx-10 bg-white border-b-4 border-r-4 border-green-600 rounded-lg hover:shadow-lg">
         <section class="flex flex-col max-w-lg px-4 overflow-auto text-black max-h-80 md:max-w-xl md:max-h-96 ">
           <section class="p-2">
             <img src="./foto1.jpg" alt="Descripción foto 1" class="h-auto mx-auto mb-2 rounded-lg shadow-md w-60 md:float-right md:ml-4" />
             <h1 class="text-xl font-stack">DESCRIPCIÓN DEL PROYECTO</h1>
             <p class="text-xs text-justify font-roboto">
-                El usuario principal es cualquier persona interesada en conocer, monitorear y gestionar su consumo eléctrico...
+              EFI-VOLT es un sistema IoT (Internet de las Cosas) diseñado para la gestión inteligente del consumo eléctrico. Utilizando el microcontrolador ESP32 y sensores de corriente no invasivos (SCT-013), el dispositivo mide el amperaje en tiempo real y se conecta vía Wi-Fi a la nube de Google Firebase. A diferencia de los medidores tradicionales, EFI-VOLT no solo muestra números, sino que procesa los datos para calcular el <strong>costo monetario acumulado</strong> y el consumo en kWh, permitiendo al usuario visualizar cuánto dinero está gastando antes de que llegue el recibo de luz.            
             </p>
           </section>
           <div class="clear-both pt-4 ">
             <img src="./foto2.jpg" alt="Descripción foto 2" class="h-auto mx-auto mt-4 mb-2 rounded-lg shadow-md w-60 md:float-left md:mr-4" />
             <h2 class="mt-4 text-lg font-stack">¿En qué situaciones utilizará la interfaz?</h2>
             <p class="mt-2 text-xs leading-relaxed text-justify font-roboto">
-              La interfaz puede ser utilizada en diferentes contextos...
+              La interfaz web progresiva permite monitorear el hogar o la oficina desde cualquier lugar del mundo. Es ideal para detectar <strong>"fugas de energía"</strong> o aparatos que consumen electricidad incluso apagados (consumo vampiro). Gracias a su capacidad de registro histórico, el usuario puede analizar patrones de consumo durante las 24 horas del día mediante gráficas interactivas, identificando picos de uso inusuales (como un aire acondicionado defectuoso o maquinaria encendida fuera de horario) y tomando decisiones informadas para reducir gastos.
             </p>
           </div>
           <div class="clear-both pt-4 ">
             <img src="./foto3.jpg" alt="Descripción foto 3" class="h-auto mx-auto mb-2 rounded-lg shadow-md w-60 md:float-right md:ml-4" />
             <h2 class="mt-4 text-lg font-stack">¿Qué información necesita ver de forma inmediata?</h2>
             <p class="mt-2 text-xs leading-relaxed text-justify font-roboto">
-              Con el uso de ambos, sensor de corriente y voltaje...
-            </p>
+              El sistema procesa lecturas cada segundo para ofrecer una precisión alta. En la plataforma, el usuario tiene acceso inmediato a tres indicadores clave:
+              <br>1. <strong>Corriente Real (Amperes):</strong> Visualizada en un monitor circular dinámico.
+              <br>2. <strong>Gasto Estimado ($):</strong> Cálculo automático basado en el precio del kWh, actualizado cada 5 segundos.
+              <br>3. <strong>Estado del Dispositivo:</strong> Un sistema de "latido" (Heartbeat) indica si el equipo está conectado (Online) o si ha perdido energía (Offline), garantizando que la información mostrada siempre sea confiable y actual.            </p>
           </div>
         </section>
       </main>
@@ -136,7 +137,7 @@
             <div class="relative flex items-center justify-center w-48 h-48 border-8 border-green-100 rounded-full shadow-inner bg-green-50">
               <div class="text-center">
                  <span id="modal-voltage" class="text-4xl font-bold text-green-700 font-stack">--</span>
-                 <span class="text-lg text-green-600">V</span>
+                 <span class="text-lg text-green-600">A</span>
               </div>
               <div class="absolute inset-0 border-4 border-green-500 rounded-full opacity-50 border-t-transparent animate-spin" style="animation-duration: 3s;"></div>
             </div>
@@ -149,8 +150,8 @@
           <div class="grid grid-cols-2 gap-3 mb-4 text-center">
             
             <div class="flex flex-col justify-center p-3 border border-gray-100 rounded-lg bg-gray-50">
-              <span class="mb-1 text-xs text-gray-500">Voltaje Prom.</span>
-              <span class="text-lg font-bold text-gray-700"><span id="modal-avg">--</span> V</span>
+              <span class="mb-1 text-xs text-gray-500">Corriente Prom.</span>
+              <span class="text-lg font-bold text-gray-700"><span id="modal-avg">--</span> A</span>
             </div>
 
             <div class="flex flex-col justify-center p-3 border border-green-100 rounded-lg bg-green-50">

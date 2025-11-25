@@ -19,17 +19,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("device-modal");
   const closeModalBtn = document.getElementById("close-modal-btn");
   const modalTitle = document.getElementById("modal-device-name");
-  const modalVoltage = document.getElementById("modal-voltage");
   
-  // ELEMENTOS DE DATOS
+  // Nota: Internamente la variable se sigue llamando "modalVoltage" para no romper lógica,
+  // pero mostrará Amperes.
+  const modalVoltage = document.getElementById("modal-voltage"); 
+  
   const modalAvg = document.getElementById("modal-avg");
-  const modalCost = document.getElementById("modal-cost"); // <--- ¡NUEVO! Para el dinero
+  const modalCost = document.getElementById("modal-cost"); 
   
   const statusBadge = document.createElement("div"); 
   statusBadge.className = "absolute px-3 py-1 text-xs font-bold tracking-wider uppercase rounded-full top-4 left-4";
   document.querySelector("#device-modal > div").appendChild(statusBadge);
 
-  // --- NAVEGACIÓN Y SIDEBAR ---
+  // --- NAVEGACIÓN ---
   const openBtn = document.getElementById("open-sidebar-btn");
   const closeBtn = document.getElementById("close-sidebar-btn");
   const sidebar = document.getElementById("sidebar");
@@ -146,14 +148,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // --- GRÁFICA FIJA (24 HORAS) ---
+  // --- GRÁFICA (Corriente - Amperes) ---
   function initChart() {
     const canvas = document.getElementById('voltageChart');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    
+    // Degradado Verde (Estilo EFI-VOLT)
     let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(37, 99, 235, 0.5)'); 
-    gradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)'); 
+    gradient.addColorStop(0, 'rgba(34, 197, 94, 0.5)'); // Verde
+    gradient.addColorStop(1, 'rgba(34, 197, 94, 0.0)'); 
 
     if (myChart) myChart.destroy();
 
@@ -161,9 +165,9 @@ document.addEventListener("DOMContentLoaded", () => {
       type: 'line',
       data: {
         datasets: [{
-          label: 'Voltaje',
+          label: 'Corriente (A)', // ¡CAMBIO DE NOMBRE!
           data: [], 
-          borderColor: '#3b82f6',
+          borderColor: '#16a34a', // Verde Intenso
           backgroundColor: gradient,
           borderWidth: 2,
           tension: 0.4,
@@ -179,14 +183,14 @@ document.addEventListener("DOMContentLoaded", () => {
         plugins: { legend: { display: false } },
         scales: {
           y: {
-            // FIJAMOS EL RANGO DE 20V a 40V
-            min: 20, 
-            max: 40,
+            // Escala 0A a 5A (Para la demo de la laptop)
+            min: 0, 
+            max: 5,
             
             border: { display: false },
             grid: { color: '#e5e7eb', borderDash: [5, 5] },
             ticks: {
-                stepSize: 5, // Mostrará líneas en 20, 25, 30, 35, 40
+                stepSize: 1, 
                 color: '#9ca3af',
                 font: { size: 10 }
             }
@@ -211,21 +215,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- ABRIR MODAL (CARGA DE DATOS) ---
+  // --- ABRIR MODAL ---
   function openDeviceModal(name, deviceId) {
     modalTitle.innerText = name;
     modal.classList.remove("hidden");
     
-    // Resetear UI
     modalVoltage.innerText = "--";
     modalAvg.innerText = "--";
-    if (modalCost) modalCost.innerText = "0.0000"; // Reset dinero
+    if (modalCost) modalCost.innerText = "0.0000"; 
     
     setOnlineStatus(false); 
     
     initChart();
 
-    // 1. HISTORIAL (Gráfica)
+    // 1. HISTORIAL
     const historyRef = queryDb(ref(database, `Sensores/${deviceId}/Historial`), limitToLast(100));
     
     get(historyRef).then((snapshot) => {
@@ -233,10 +236,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const historyData = [];
         snapshot.forEach((childSnapshot) => {
           const timestamp = childSnapshot.key;
-          const voltaje = childSnapshot.val();
+          const valor = childSnapshot.val(); // Es Amperaje
           const date = new Date(timestamp * 1000); 
           const decimalHour = date.getHours() + (date.getMinutes() / 60);
-          historyData.push({ x: decimalHour, y: voltaje });
+          historyData.push({ x: decimalHour, y: valor });
         });
         if (myChart) {
           myChart.data.datasets[0].data = historyData;
@@ -245,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }).catch((error) => console.error(error));
 
-    // 2. DATOS EN VIVO (Voltaje, Promedio, Dinero)
+    // 2. EN VIVO
     const deviceRef = ref(database, `Sensores/${deviceId}`);
     currentListenerRef = deviceRef;
     let lastUpdateTimestamp = 0;
@@ -254,9 +257,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = snapshot.val();
       
       if (data) {
-        // Voltaje y Gráfica
+        // OJO: Leemos "Voltaje" de la base de datos porque así lo envía el ESP32,
+        // pero sabemos que el valor es CORRIENTE (Amperes).
         if (data.Voltaje !== undefined) {
              modalVoltage.innerText = data.Voltaje;
+             
              if (myChart) {
                  const now = new Date();
                  const decimalHour = now.getHours() + (now.getMinutes() / 60);
@@ -266,15 +271,12 @@ document.addEventListener("DOMContentLoaded", () => {
              }
         }
 
-        // Promedio
         if (data.Promedio !== undefined) modalAvg.innerText = parseFloat(data.Promedio).toFixed(2);
         
-        // --- DINERO (NUEVO) ---
         if (data.CostoDinero !== undefined && modalCost) {
             modalCost.innerText = parseFloat(data.CostoDinero).toFixed(4);
         }
 
-        // Estado Online
         if (data.UltimaActulizacion) {
             const myTimeSeconds = Math.floor(Date.now() / 1000);
             const diff = myTimeSeconds - data.UltimaActulizacion;
