@@ -260,7 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // OJO: Leemos "Voltaje" de la base de datos porque así lo envía el ESP32,
         // pero sabemos que el valor es CORRIENTE (Amperes).
         if (data.Voltaje !== undefined) {
-             modalVoltage.innerText = data.Voltaje;
+             modalVoltage.innerText = parseFloat(data.Voltaje).toFixed(2);
              
              if (myChart) {
                  const now = new Date();
