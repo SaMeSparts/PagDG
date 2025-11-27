@@ -15,15 +15,12 @@ document.addEventListener("DOMContentLoaded", () => {
   let connectionWatchdog = null;
   let myChart = null; 
 
-  // --- UI ELEMENTS ---
   const modal = document.getElementById("device-modal");
   const closeModalBtn = document.getElementById("close-modal-btn");
   const modalTitle = document.getElementById("modal-device-name");
   
-  // Nota: Internamente la variable se sigue llamando "modalVoltage" para no romper lógica,
-  // pero mostrará Amperes.
-  const modalVoltage = document.getElementById("modal-voltage"); 
-  
+  // Variables UI
+  const modalValue = document.getElementById("modal-voltage"); // Ahora mostrará kW
   const modalAvg = document.getElementById("modal-avg");
   const modalCost = document.getElementById("modal-cost"); 
   
@@ -138,25 +135,32 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isOnline) {
       statusBadge.innerText = "🟢 ONLINE";
       statusBadge.className = "absolute px-3 py-1 text-xs font-bold tracking-wider text-green-800 uppercase bg-green-100 border border-green-200 rounded-full top-4 left-4";
-      modalVoltage.classList.remove("text-gray-400");
-      modalVoltage.classList.add("text-green-700");
+      modalValue.classList.remove("text-gray-400");
+      modalValue.classList.add("text-green-700");
     } else {
       statusBadge.innerText = "🔴 OFFLINE";
       statusBadge.className = "absolute px-3 py-1 text-xs font-bold tracking-wider text-gray-600 uppercase bg-gray-200 border border-gray-300 rounded-full top-4 left-4";
-      modalVoltage.classList.remove("text-green-700");
-      modalVoltage.classList.add("text-gray-400");
+      modalValue.classList.remove("text-green-700");
+      modalValue.classList.add("text-gray-400");
     }
   }
 
-  // --- GRÁFICA (Corriente - Amperes) ---
+  // --- FUNCIÓN HELPER: AMPERES A KW ---
+  function ampsToKw(amps) {
+      // W = V * A -> kW = (V * A) / 1000
+      // Usamos 127V como estándar
+      const watts = amps * 127;
+      return watts / 1000;
+  }
+
+  // --- GRÁFICA (En kW) ---
   function initChart() {
     const canvas = document.getElementById('voltageChart');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
-    // Degradado Verde (Estilo EFI-VOLT)
     let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(34, 197, 94, 0.5)'); // Verde
+    gradient.addColorStop(0, 'rgba(34, 197, 94, 0.5)'); 
     gradient.addColorStop(1, 'rgba(34, 197, 94, 0.0)'); 
 
     if (myChart) myChart.destroy();
@@ -165,9 +169,9 @@ document.addEventListener("DOMContentLoaded", () => {
       type: 'line',
       data: {
         datasets: [{
-          label: 'Corriente (A)', // ¡CAMBIO DE NOMBRE!
+          label: 'Potencia (kW)', // Etiqueta correcta
           data: [], 
-          borderColor: '#16a34a', // Verde Intenso
+          borderColor: '#16a34a', 
           backgroundColor: gradient,
           borderWidth: 2,
           tension: 0.4,
@@ -183,17 +187,12 @@ document.addEventListener("DOMContentLoaded", () => {
         plugins: { legend: { display: false } },
         scales: {
           y: {
-            // Escala 0A a 5A (Para la demo de la laptop)
+            // Escala kW: 0 kW a 2 kW (aprox 15 Amperes)
             min: 0, 
-            max: 5,
-            
+            max: 2, 
             border: { display: false },
             grid: { color: '#e5e7eb', borderDash: [5, 5] },
-            ticks: {
-                stepSize: 1, 
-                color: '#9ca3af',
-                font: { size: 10 }
-            }
+            ticks: { stepSize: 0.5, color: '#9ca3af', font: { size: 10 } }
           },
           x: { 
              type: 'linear', 
@@ -220,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
     modalTitle.innerText = name;
     modal.classList.remove("hidden");
     
-    modalVoltage.innerText = "--";
+    modalValue.innerText = "--";
     modalAvg.innerText = "--";
     if (modalCost) modalCost.innerText = "0.0000"; 
     
@@ -228,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     initChart();
 
-    // 1. HISTORIAL
+    // 1. Historial
     const historyRef = queryDb(ref(database, `Sensores/${deviceId}/Historial`), limitToLast(100));
     
     get(historyRef).then((snapshot) => {
@@ -236,10 +235,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const historyData = [];
         snapshot.forEach((childSnapshot) => {
           const timestamp = childSnapshot.key;
-          const valor = childSnapshot.val(); // Es Amperaje
+          const amps = childSnapshot.val();
+          
+          // CONVERSIÓN A KW
+          const kw = ampsToKw(amps);
+
           const date = new Date(timestamp * 1000); 
           const decimalHour = date.getHours() + (date.getMinutes() / 60);
-          historyData.push({ x: decimalHour, y: valor });
+          historyData.push({ x: decimalHour, y: kw });
         });
         if (myChart) {
           myChart.data.datasets[0].data = historyData;
@@ -248,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }).catch((error) => console.error(error));
 
-    // 2. EN VIVO
+    // 2. En Vivo
     const deviceRef = ref(database, `Sensores/${deviceId}`);
     currentListenerRef = deviceRef;
     let lastUpdateTimestamp = 0;
@@ -257,21 +260,29 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = snapshot.val();
       
       if (data) {
-        // OJO: Leemos "Voltaje" de la base de datos porque así lo envía el ESP32,
-        // pero sabemos que el valor es CORRIENTE (Amperes).
+        // En "Voltaje" vienen los Amperes reales del ESP32
         if (data.Voltaje !== undefined) {
-             modalVoltage.innerText = parseFloat(data.Voltaje).toFixed(2);
+             const amps = parseFloat(data.Voltaje);
+             const kw = ampsToKw(amps);
+
+             // Mostramos kW con 3 decimales (Ej: 0.150 kW)
+             modalValue.innerText = kw.toFixed(2);
              
              if (myChart) {
                  const now = new Date();
                  const decimalHour = now.getHours() + (now.getMinutes() / 60);
-                 myChart.data.datasets[0].data.push({ x: decimalHour, y: data.Voltaje });
+                 myChart.data.datasets[0].data.push({ x: decimalHour, y: kw });
                  myChart.data.datasets[0].data.sort((a, b) => a.x - b.x);
                  myChart.update('none');
              }
         }
 
-        if (data.Promedio !== undefined) modalAvg.innerText = parseFloat(data.Promedio).toFixed(2);
+        // Promedio (También viene en Amperes, lo convertimos)
+        if (data.Promedio !== undefined) {
+            const ampsProm = parseFloat(data.Promedio);
+            const kwProm = ampsToKw(ampsProm);
+            modalAvg.innerText = kwProm.toFixed(3);
+        }
         
         if (data.CostoDinero !== undefined && modalCost) {
             modalCost.innerText = parseFloat(data.CostoDinero).toFixed(4);
