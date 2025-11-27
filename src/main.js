@@ -15,12 +15,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let connectionWatchdog = null;
   let myChart = null; 
 
+  // --- UI ELEMENTS ---
   const modal = document.getElementById("device-modal");
   const closeModalBtn = document.getElementById("close-modal-btn");
   const modalTitle = document.getElementById("modal-device-name");
   
   // Variables UI
-  const modalValue = document.getElementById("modal-voltage"); // Ahora mostrará kW
+  const modalValue = document.getElementById("modal-voltage"); 
   const modalAvg = document.getElementById("modal-avg");
   const modalCost = document.getElementById("modal-cost"); 
   
@@ -187,9 +188,9 @@ document.addEventListener("DOMContentLoaded", () => {
         plugins: { legend: { display: false } },
         scales: {
           y: {
-            // Escala kW: 0 kW a 2 kW (aprox 15 Amperes)
+            // Escala kW: 0 kW a 2.5 kW (Ideal para casa)
             min: 0, 
-            max: 2, 
+            max: 2.5, 
             border: { display: false },
             grid: { color: '#e5e7eb', borderDash: [5, 5] },
             ticks: { stepSize: 0.5, color: '#9ca3af', font: { size: 10 } }
@@ -235,13 +236,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const historyData = [];
         snapshot.forEach((childSnapshot) => {
           const timestamp = childSnapshot.key;
-          const amps = childSnapshot.val();
+          const amps = childSnapshot.val(); // Valor de la BD es Amperes
           
-          // CONVERSIÓN A KW
+          // CONVERSIÓN A KW PARA LA GRÁFICA
           const kw = ampsToKw(amps);
 
           const date = new Date(timestamp * 1000); 
           const decimalHour = date.getHours() + (date.getMinutes() / 60);
+          
+          // Guardamos kW en la gráfica
           historyData.push({ x: decimalHour, y: kw });
         });
         if (myChart) {
@@ -260,14 +263,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = snapshot.val();
       
       if (data) {
-        // En "Voltaje" vienen los Amperes reales del ESP32
+        // "Voltaje" en BD = Amperes
         if (data.Voltaje !== undefined) {
              const amps = parseFloat(data.Voltaje);
              const kw = ampsToKw(amps);
 
-             // Mostramos kW con 3 decimales (Ej: 0.150 kW)
+             // Texto con 2 decimales
              modalValue.innerText = kw.toFixed(2);
              
+             // Gráfica en kW
              if (myChart) {
                  const now = new Date();
                  const decimalHour = now.getHours() + (now.getMinutes() / 60);
@@ -277,11 +281,11 @@ document.addEventListener("DOMContentLoaded", () => {
              }
         }
 
-        // Promedio (También viene en Amperes, lo convertimos)
+        // Promedio en kW
         if (data.Promedio !== undefined) {
             const ampsProm = parseFloat(data.Promedio);
             const kwProm = ampsToKw(ampsProm);
-            modalAvg.innerText = kwProm.toFixed(3);
+            modalAvg.innerText = kwProm.toFixed(2);
         }
         
         if (data.CostoDinero !== undefined && modalCost) {
